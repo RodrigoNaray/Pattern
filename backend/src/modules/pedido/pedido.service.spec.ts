@@ -8,11 +8,11 @@ describe('PedidoService', () => {
   let service: PedidoService;
   let prisma: any;
 
-  const mockProducto = {
+  const mockProducto: any = {
     id: 'prod-1',
     nombre: 'Camiseta básica',
     talle: 'M',
-    precioCentavos: BigInt(15000),
+    precioCentavos: 15000,
     stock: 10,
     activo: true,
     creadoEn: new Date(),
@@ -20,19 +20,19 @@ describe('PedidoService', () => {
     imagenes: [],
   };
 
-  const mockPedido = {
+  const mockPedido: any = {
     id: 'pedido-1',
     codigo: 'PED-ABC123XY',
     emailComprador: 'comprador@email.com',
     telefonoComprador: '+59899123456',
     estado: 'PENDIENTE_PAGO',
-    totalCentavos: BigInt(30000),
+    totalCentavos: 30000,
     creadoEn: new Date(),
     confirmadoEn: null,
     vencidoEn: new Date(Date.now() + 48 * 60 * 60 * 1000),
   };
 
-  const mockPedidoWithItems = {
+  const mockPedidoWithItems: any = {
     ...mockPedido,
     items: [
       {
@@ -40,8 +40,8 @@ describe('PedidoService', () => {
         pedidoId: 'pedido-1',
         productoId: 'prod-1',
         cantidad: 2,
-        precioUnitarioCentavos: BigInt(15000),
-        subtotalCentavos: BigInt(30000),
+        precioUnitarioCentavos: 15000,
+        subtotalCentavos: 30000,
         producto: {
           nombre: 'Camiseta básica',
           talle: 'M',
@@ -117,7 +117,6 @@ describe('PedidoService', () => {
         data: expect.objectContaining({
           emailComprador: 'comprador@email.com',
           estado: 'PENDIENTE_PAGO',
-          totalCentavos: BigInt(30000),
         }),
         include: expect.any(Object),
       });
@@ -134,7 +133,7 @@ describe('PedidoService', () => {
         ...mockProducto,
         id: 'prod-2',
         nombre: 'Pantalón recto',
-        precioCentavos: BigInt(25000),
+        precioCentavos: 25000,
       };
 
       prisma.producto.findUnique
@@ -143,15 +142,15 @@ describe('PedidoService', () => {
 
       const pedidoConDosItems = {
         ...mockPedidoWithItems,
-        totalCentavos: BigInt(55000),
+        totalCentavos: 55000,
         items: [
           {
             id: 'item-1',
             pedidoId: 'pedido-1',
             productoId: 'prod-1',
             cantidad: 2,
-            precioUnitarioCentavos: BigInt(15000),
-            subtotalCentavos: BigInt(30000),
+            precioUnitarioCentavos: 15000,
+            subtotalCentavos: 30000,
             producto: { nombre: 'Camiseta básica', talle: 'M' },
           },
           {
@@ -159,8 +158,8 @@ describe('PedidoService', () => {
             pedidoId: 'pedido-1',
             productoId: 'prod-2',
             cantidad: 1,
-            precioUnitarioCentavos: BigInt(25000),
-            subtotalCentavos: BigInt(25000),
+            precioUnitarioCentavos: 25000,
+            subtotalCentavos: 25000,
             producto: { nombre: 'Pantalón recto', talle: 'L' },
           },
         ],
@@ -266,7 +265,7 @@ describe('PedidoService', () => {
           emailComprador: 'a@email.com',
           telefonoComprador: '+59899000000',
           estado: 'PENDIENTE_PAGO',
-          totalCentavos: BigInt(15000),
+          totalCentavos: 15000,
           creadoEn: new Date('2026-01-10'),
           vencidoEn: new Date('2026-01-12'),
           _count: { items: 1 },
@@ -277,7 +276,7 @@ describe('PedidoService', () => {
           emailComprador: 'b@email.com',
           telefonoComprador: '+59899111111',
           estado: 'PENDIENTE_PAGO',
-          totalCentavos: BigInt(25000),
+          totalCentavos: 25000,
           creadoEn: new Date('2026-01-09'),
           vencidoEn: new Date('2026-01-11'),
           _count: { items: 2 },
@@ -316,7 +315,7 @@ describe('PedidoService', () => {
 
   describe('confirmarPago', () => {
     it('debería confirmar el pago y descontar stock correctamente', async () => {
-      const pedidoConfirmable = {
+      const pedidoConfirmable: any = {
         ...mockPedido,
         estado: 'PENDIENTE_PAGO',
         items: [
@@ -325,8 +324,8 @@ describe('PedidoService', () => {
             pedidoId: 'pedido-1',
             productoId: 'prod-1',
             cantidad: 2,
-            precioUnitarioCentavos: BigInt(15000),
-            subtotalCentavos: BigInt(30000),
+            precioUnitarioCentavos: 15000,
+            subtotalCentavos: 30000,
             producto: { nombre: 'Camiseta básica', talle: 'M' },
           },
         ],
@@ -353,7 +352,7 @@ describe('PedidoService', () => {
         },
       };
 
-      prisma.pedido.findUnique.mockResolvedValue(pedidoConfirmable as any);
+      prisma.pedido.findUnique.mockResolvedValue(pedidoConfirmable);
       prisma.producto.findUnique.mockResolvedValue(mockProductoTx);
       prisma.$transaction.mockImplementation(async (fn: any) => fn(mockTx));
 
@@ -384,7 +383,7 @@ describe('PedidoService', () => {
     });
 
     it('debería marcar producto inactivo cuando stock llega a cero', async () => {
-      const pedidoConfirmable = {
+      const pedidoConfirmable: any = {
         ...mockPedido,
         estado: 'PENDIENTE_PAGO',
         items: [
@@ -393,8 +392,8 @@ describe('PedidoService', () => {
             pedidoId: 'pedido-1',
             productoId: 'prod-1',
             cantidad: 10,
-            precioUnitarioCentavos: BigInt(15000),
-            subtotalCentavos: BigInt(150000),
+            precioUnitarioCentavos: 15000,
+            subtotalCentavos: 150000,
             producto: { nombre: 'Camiseta básica', talle: 'M' },
           },
         ],
@@ -422,7 +421,7 @@ describe('PedidoService', () => {
         },
       };
 
-      prisma.pedido.findUnique.mockResolvedValue(pedidoConfirmable as any);
+      prisma.pedido.findUnique.mockResolvedValue(pedidoConfirmable);
       prisma.producto.findUnique.mockResolvedValue(mockProductoTx);
       prisma.$transaction.mockImplementation(async (fn: any) => fn(mockTx));
 
@@ -458,7 +457,7 @@ describe('PedidoService', () => {
     });
 
     it('debería lanzar NotFoundException cuando un producto no existe', async () => {
-      const pedidoConfirmable = {
+      const pedidoConfirmable: any = {
         ...mockPedido,
         estado: 'PENDIENTE_PAGO',
         items: [
@@ -467,14 +466,14 @@ describe('PedidoService', () => {
             pedidoId: 'pedido-1',
             productoId: 'prod-inexistente',
             cantidad: 2,
-            precioUnitarioCentavos: BigInt(15000),
-            subtotalCentavos: BigInt(30000),
+            precioUnitarioCentavos: 15000,
+            subtotalCentavos: 30000,
             producto: { nombre: 'Camiseta no existe', talle: 'M' },
           },
         ],
       };
 
-      prisma.pedido.findUnique.mockResolvedValue(pedidoConfirmable as any);
+      prisma.pedido.findUnique.mockResolvedValue(pedidoConfirmable);
       prisma.producto.findUnique.mockResolvedValue(null);
 
       await expect(service.confirmarPago('pedido-1')).rejects.toThrow(NotFoundException);
@@ -482,7 +481,7 @@ describe('PedidoService', () => {
     });
 
     it('debería lanzar BadRequestException cuando el stock es insuficiente', async () => {
-      const pedidoConfirmable = {
+      const pedidoConfirmable: any = {
         ...mockPedido,
         estado: 'PENDIENTE_PAGO',
         items: [
@@ -491,8 +490,8 @@ describe('PedidoService', () => {
             pedidoId: 'pedido-1',
             productoId: 'prod-1',
             cantidad: 15,
-            precioUnitarioCentavos: BigInt(15000),
-            subtotalCentavos: BigInt(225000),
+            precioUnitarioCentavos: 15000,
+            subtotalCentavos: 225000,
             producto: { nombre: 'Camiseta básica', talle: 'M' },
           },
         ],
@@ -503,10 +502,136 @@ describe('PedidoService', () => {
         stock: 5,
       };
 
-      prisma.pedido.findUnique.mockResolvedValue(pedidoConfirmable as any);
+      prisma.pedido.findUnique.mockResolvedValue(pedidoConfirmable);
       prisma.producto.findUnique.mockResolvedValue(productoStockBajo);
 
       await expect(service.confirmarPago('pedido-1')).rejects.toThrow(BadRequestException);
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('cancelar', () => {
+    it('debería cancelar el pedido y restaurar stock exitosamente', async () => {
+      const pedidoCancelable: any = {
+        ...mockPedido,
+        estado: 'PENDIENTE_PAGO',
+        totalCentavos: 55000,
+        items: [
+          {
+            id: 'item-1',
+            pedidoId: 'pedido-1',
+            productoId: 'prod-1',
+            cantidad: 2,
+            precioUnitarioCentavos: 15000,
+            subtotalCentavos: 30000,
+          },
+          {
+            id: 'item-2',
+            pedidoId: 'pedido-1',
+            productoId: 'prod-2',
+            cantidad: 1,
+            precioUnitarioCentavos: 25000,
+            subtotalCentavos: 25000,
+          },
+        ],
+      };
+
+      const mockPedidoCancelado: any = {
+        id: 'pedido-1',
+        codigo: 'PED-ABC123XY',
+        estado: 'CANCELADO',
+        totalCentavos: 55000,
+      };
+
+      const mockTx = {
+        pedido: { update: jest.fn().mockResolvedValue(mockPedidoCancelado) },
+        producto: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'prod-1', nombre: 'Camiseta básica', stock: 10 }),
+          update: jest
+            .fn()
+            .mockResolvedValueOnce({ id: 'prod-1', nombre: 'Camiseta básica', stock: 12 })
+            .mockResolvedValueOnce({ id: 'prod-2', nombre: 'Pantalón recto', stock: 6 }),
+        },
+        notificacion: {
+          create: jest.fn().mockResolvedValue({ id: 'notif-3' }),
+        },
+      };
+
+      prisma.pedido.findUnique.mockResolvedValue(pedidoCancelable);
+      prisma.$transaction.mockImplementation(async (fn: any) => fn(mockTx));
+
+      const result = await service.cancelar('pedido-1');
+
+      expect(result.mensaje).toBe('Pedido cancelado exitosamente');
+      expect(result.pedido.estado).toBe('CANCELADO');
+      expect(result.pedido.codigo).toBe('PED-ABC123XY');
+      expect(result.pedido.totalCentavos).toBe(55000);
+
+      expect(mockTx.pedido.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'pedido-1' },
+          data: { estado: 'CANCELADO' },
+        }),
+      );
+
+      expect(mockTx.producto.update).toHaveBeenNthCalledWith(1, {
+        where: { id: 'prod-1' },
+        data: { stock: { increment: 2 } },
+      });
+
+      expect(mockTx.producto.update).toHaveBeenNthCalledWith(2, {
+        where: { id: 'prod-2' },
+        data: { stock: { increment: 1 } },
+      });
+
+      expect(mockTx.notificacion.create).toHaveBeenNthCalledWith(1, {
+        data: {
+          canal: 'EMAIL',
+          mensaje: 'Tu pedido PED-ABC123XY fue cancelado.',
+          pedidoId: 'pedido-1',
+        },
+      });
+
+      expect(mockTx.notificacion.create).toHaveBeenNthCalledWith(2, {
+        data: {
+          canal: 'PANEL',
+          mensaje: 'Pedido PED-ABC123XY cancelado por el administrador',
+          pedidoId: 'pedido-1',
+        },
+      });
+    });
+
+    it('debería lanzar BadRequestException cuando el pedido ya está confirmado', async () => {
+      const yaConfirmado = {
+        ...mockPedido,
+        estado: 'PAGO_CONFIRMADO',
+        confirmadoEn: new Date(),
+        items: [],
+      };
+
+      prisma.pedido.findUnique.mockResolvedValue(yaConfirmado as any);
+
+      await expect(service.cancelar('pedido-1')).rejects.toThrow(BadRequestException);
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('debería lanzar BadRequestException cuando el pedido ya está cancelado', async () => {
+      const yaCancelado = {
+        ...mockPedido,
+        estado: 'CANCELADO',
+        items: [],
+      };
+
+      prisma.pedido.findUnique.mockResolvedValue(yaCancelado as any);
+
+      await expect(service.cancelar('pedido-1')).rejects.toThrow(BadRequestException);
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('debería lanzar NotFoundException cuando el pedido no existe', async () => {
+      prisma.pedido.findUnique.mockResolvedValue(null);
+
+      await expect(service.cancelar('pedido-inexistente')).rejects.toThrow(NotFoundException);
       expect(prisma.$transaction).not.toHaveBeenCalled();
     });
   });

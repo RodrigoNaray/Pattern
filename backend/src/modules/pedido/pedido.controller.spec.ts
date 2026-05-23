@@ -15,6 +15,7 @@ describe('PedidoController', () => {
     listarPendientes: jest.fn(),
     confirmarPago: jest.fn(),
     obtenerInstruccionesPago: jest.fn(),
+    cancelar: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -195,6 +196,39 @@ describe('PedidoController', () => {
       mockPedidoService.obtenerInstruccionesPago.mockRejectedValue(new NotFoundException('Pedido no encontrado'));
 
       await expect(controller.obtenerInstruccionesPago('pedido-inexistente')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('cancelar', () => {
+    it('debería delegar al servicio y retornar el resultado', async () => {
+      const mockResult = {
+        mensaje: 'Pedido cancelado exitosamente',
+        pedido: {
+          id: 'pedido-1',
+          codigo: 'PED-ABC123XY',
+          estado: 'CANCELADO',
+          totalCentavos: 30000,
+        },
+      };
+
+      mockPedidoService.cancelar.mockResolvedValue(mockResult);
+
+      const result = await controller.cancelar('pedido-1');
+
+      expect(result).toEqual(mockResult);
+      expect(mockPedidoService.cancelar).toHaveBeenCalledWith('pedido-1');
+    });
+
+    it('debería propagar BadRequestException del servicio', async () => {
+      mockPedidoService.cancelar.mockRejectedValue(new BadRequestException('No se puede cancelar un pedido confirmado'));
+
+      await expect(controller.cancelar('pedido-1')).rejects.toThrow(BadRequestException);
+    });
+
+    it('debería propagar NotFoundException del servicio', async () => {
+      mockPedidoService.cancelar.mockRejectedValue(new NotFoundException('Pedido no encontrado'));
+
+      await expect(controller.cancelar('pedido-inexistente')).rejects.toThrow(NotFoundException);
     });
   });
 });
