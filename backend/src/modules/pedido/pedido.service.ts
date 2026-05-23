@@ -8,6 +8,7 @@ import { PrismaService } from '@common/config/database/prisma.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { PedidoInstruccionesPagoDto } from './dto/pedido-instrucciones-pago.dto';
 import { PedidoPendienteDto } from './dto/pedido-pendiente.dto';
+import { CancelarPedidoResponse, CancelarPedidoResultado } from './dto/cancelar-pedido-response.dto';
 
 export interface StockInsuficienteError {
   productoId: string;
@@ -478,5 +479,66 @@ export class PedidoService {
 
   private obtenerVencimientoHoras(): number {
     return 48;
+  }
+
+  async cancelar(id: string): Promise<CancelarPedidoResponse> {
+    const pedido = await this.prisma.pedido.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+
+    if (!pedido) {
+      throw new NotFoundException('Pedido no encontrado');
+    }
+
+    if (pedido.estado === PedidoService.estadoPagoConfirmado) {
+      throw new BadRequestException('No se puede cancelar un pedido confirmado');
+    }
+
+    if (pedido.estado === PedidoService.estadoCancelado) {
+      throw new BadRequestException('Este pedido ya fue cancelado');
+    }
+
+    const resultado = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      await tx.pedido.update({
+        where: { id },
+        data: { estado: PedidoService.estadoCancelado },
+      });
+
+      for (const item of pedido.items) {
+        await tx.producto.update({
+          where: { id: item.productoId },
+          data: { stock: { increment: item.cantidad } },
+        });
+      }
+
+      await tx.notificacion.create({
+        data: {
+          canal: PedidoService.canalEmail,
+          mensaje: `Tu pedido ${pedido.codigo} fue cancelado.`,
+          pedidoId: pedido.id,
+        },
+      });
+
+      await tx.notificacion.create({
+        data: {
+          canal: PedidoService.canalPanel,
+          mensaje: `Pedido ${pedido.codigo} cancelado por el administrador`,
+          pedidoId: pedido.id,
+        },
+      });
+
+      return {
+        id: pedido.id,
+        codigo: pedido.codigo,
+        estado: PedidoService.estadoCancelado,
+        totalCentavos: Number(pedido.totalCentavos),
+      };
+    });
+
+    return {
+      mensaje: 'Pedido cancelado exitosamente',
+      pedido: resultado,
+    };
   }
 }

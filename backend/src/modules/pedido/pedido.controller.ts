@@ -4,6 +4,7 @@ import { PedidoService, CreatePedidoResult } from './pedido.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { PedidoInstruccionesPagoDto } from './dto/pedido-instrucciones-pago.dto';
 import { PedidoPendienteDto } from './dto/pedido-pendiente.dto';
+import { CancelarPedidoResponse } from './dto/cancelar-pedido-response.dto';
 
 @ApiTags('pedidos')
 @Controller('pedidos')
@@ -93,5 +94,25 @@ export class PedidoController {
   })
   async obtenerInstruccionesPago(@Param('id') pedidoId: string): Promise<PedidoInstruccionesPagoDto> {
     return this.pedidoService.obtenerInstruccionesPago(pedidoId);
+  }
+
+  @Put(':id/cancelar')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cancelar un pedido pendiente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Pedido cancelado exitosamente',
+    schema: { type: 'object', properties: { mensaje: { type: 'string' }, pedido: { type: 'object' } } },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'No se puede cancelar un pedido confirmado o ya cancelado',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Pedido no encontrado',
+  })
+  async cancelar(@Param('id') id: string): Promise<CancelarPedidoResponse> {
+    return this.pedidoService.cancelar(id);
   }
 }
