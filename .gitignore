@@ -2,5 +2,9 @@ node_modules
 .env
 dist
 .clinerules
+.cline
+.agents
 .design-context
 *.tsbuildinfo
+skills-lock.json
+AGENTS.md
