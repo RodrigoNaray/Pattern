@@ -1,11 +1,32 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@common/config/database/prisma.service';
-import { CreateProductoDto } from './dto/create-producto.dto';
-import { UpdateProductoDto } from './dto/update-producto.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "@common/config/database/prisma.service";
+import { CreateProductoDto } from "./dto/create-producto.dto";
+import { UpdateProductoDto } from "./dto/update-producto.dto";
+import { PublicarProductoDto } from "./dto/publicar-producto.dto";
 
 @Injectable()
 export class ProductoService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async publicar(dto: PublicarProductoDto, urlsImagenes: string[]) {
+    if (urlsImagenes.length === 0) {
+      throw new Error("Se requiere al menos una imagen");
+    }
+
+    const producto = await this.prisma.producto.create({
+      data: {
+        nombre: dto.nombre,
+        descripcion: dto.descripcion ?? null,
+        talle: dto.talle,
+        precioCentavos: BigInt(dto.precioCentavos),
+        stock: 0,
+        imagenes: urlsImagenes,
+        activo: true,
+      },
+    });
+
+    return this.construirRespuesta(producto);
+  }
 
   async crear(data: CreateProductoDto) {
     const datosPrisma = this.mapearParaPrisma(data);
@@ -13,7 +34,12 @@ export class ProductoService {
     return this.construirRespuesta(producto);
   }
 
-  async listar(params?: { activo?: boolean | undefined; talle?: string | undefined; pagina?: number | undefined; tamano?: number | undefined }) {
+  async listar(params?: {
+    activo?: boolean | undefined;
+    talle?: string | undefined;
+    pagina?: number | undefined;
+    tamano?: number | undefined;
+  }) {
     const { activo, talle, pagina = 1, tamano = 20 } = params ?? {};
     const where: Record<string, unknown> = {};
     if (activo !== undefined) where.activo = activo;
@@ -25,32 +51,38 @@ export class ProductoService {
         where,
         skip: (pagina - 1) * tamano,
         take: tamano,
-        orderBy: { creadoEn: 'desc' },
+        orderBy: { creadoEn: "desc" },
       }),
     ]);
 
-    return { productos: productos.map(this.construirRespuesta), total, pagina, tamano };
+    return {
+      productos: productos.map(this.construirRespuesta),
+      total,
+      pagina,
+      tamano,
+    };
   }
 
   async obtenerUno(id: string) {
     const producto = await this.prisma.producto.findUnique({ where: { id } });
-    if (!producto) throw new NotFoundException('Producto no encontrado');
+    if (!producto) throw new NotFoundException("Producto no encontrado");
     return this.construirRespuesta(producto);
   }
 
   async actualizar(id: string, data: UpdateProductoDto) {
-    await this.prisma.producto.findUnique({ where: { id } }).catch(() => {
-      throw new NotFoundException('Producto no encontrado');
-    });
+    const existente = await this.prisma.producto.findUnique({ where: { id } });
+    if (!existente) throw new NotFoundException("Producto no encontrado");
     const datosPrisma = this.mapearUpdateParaPrisma(data);
-    const producto = await this.prisma.producto.update({ where: { id }, data: datosPrisma });
+    const producto = await this.prisma.producto.update({
+      where: { id },
+      data: datosPrisma,
+    });
     return this.construirRespuesta(producto);
   }
 
   async eliminar(id: string) {
-    await this.prisma.producto.findUnique({ where: { id } }).catch(() => {
-      throw new NotFoundException('Producto no encontrado');
-    });
+    const existente = await this.prisma.producto.findUnique({ where: { id } });
+    if (!existente) throw new NotFoundException("Producto no encontrado");
     await this.prisma.producto.delete({ where: { id } });
     return { id, eliminado: true };
   }
@@ -71,9 +103,11 @@ export class ProductoService {
     const datos: Record<string, unknown> = {};
     if (data.nombre !== undefined) datos.nombre = data.nombre;
     if (data.talle !== undefined) datos.talle = data.talle;
-    if (data.precioCentavos !== undefined) datos.precioCentavos = BigInt(data.precioCentavos);
+    if (data.precioCentavos !== undefined)
+      datos.precioCentavos = BigInt(data.precioCentavos);
     if (data.stock !== undefined) datos.stock = data.stock;
-    if (data.descripcion !== undefined) datos.descripcion = data.descripcion ?? null;
+    if (data.descripcion !== undefined)
+      datos.descripcion = data.descripcion ?? null;
     if (data.imagenes !== undefined) datos.imagenes = data.imagenes;
     if (data.activo !== undefined) datos.activo = data.activo;
     return datos;
