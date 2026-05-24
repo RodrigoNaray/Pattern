@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "@common/config/database/prisma.service";
 import { CreateProductoDto } from "./dto/create-producto.dto";
 import { UpdateProductoDto } from "./dto/update-producto.dto";
@@ -105,6 +109,20 @@ export class ProductoService {
     });
 
     return this.construirRespuesta(producto);
+  }
+
+  async desactivar(id: string) {
+    const producto = await this.prisma.producto.findUnique({ where: { id } });
+    if (!producto) throw new NotFoundException("Producto no encontrado");
+    if (producto.activo === false)
+      throw new BadRequestException("Este producto ya está desactivado");
+
+    const productoActualizado = await this.prisma.producto.update({
+      where: { id },
+      data: { activo: false },
+    });
+
+    return this.construirRespuesta(productoActualizado);
   }
 
   async eliminar(id: string) {

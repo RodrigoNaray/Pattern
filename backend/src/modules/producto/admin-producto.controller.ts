@@ -172,4 +172,22 @@ export class AdminProductoController {
       producto,
     };
   }
+
+  @Put(":id/desactivar")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Desactivar un producto (admin)" })
+  @ApiResponse({
+    status: 200,
+    description: "Producto desactivado exitosamente",
+  })
+  @ApiResponse({ status: 400, description: "El producto ya está desactivado" })
+  @ApiResponse({ status: 401, description: "No autenticado" })
+  @ApiResponse({ status: 404, description: "Producto no encontrado" })
+  async desactivar(@Param("id") id: string) {
+    const producto = await this.productoService.desactivar(id);
+    return {
+      mensaje: "Producto desactivado exitosamente",
+      producto,
+    };
+  }
 }
