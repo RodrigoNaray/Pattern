@@ -83,6 +83,7 @@ describe("ProductoController", () => {
         {
           id: "prod-1",
           nombre: "Remera Algodón",
+          descripcion: null,
           talle: "M",
           precioCentavos: BigInt(15000),
           stock: 100,

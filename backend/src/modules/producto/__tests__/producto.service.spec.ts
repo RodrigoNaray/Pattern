@@ -1,12 +1,25 @@
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { ProductoService } from "../producto.service";
 import { PrismaService } from "@common/config/database/prisma.service";
 import { PublicarProductoDto } from "../dto/publicar-producto.dto";
 
+interface MockPrismaProducto {
+  create: jest.Mock;
+  findMany: jest.Mock;
+  findUnique: jest.Mock;
+  update: jest.Mock;
+  delete: jest.Mock;
+  count: jest.Mock;
+}
+
+interface MockPrismaService {
+  producto: MockPrismaProducto;
+}
+
 describe("ProductoService", () => {
   let service: ProductoService;
-  let prisma: jest.Mocked<PrismaService>;
+  let prisma: MockPrismaService;
 
   const mockPrismaService = {
     producto: {
@@ -31,7 +44,7 @@ describe("ProductoService", () => {
     }).compile();
 
     service = module.get<ProductoService>(ProductoService);
-    prisma = mockPrismaService as unknown as jest.Mocked<PrismaService>;
+    prisma = mockPrismaService;
   });
 
   afterEach(() => {
@@ -399,6 +412,55 @@ describe("ProductoService", () => {
         where: { id: "prod-1" },
         data: {},
       });
+    });
+  });
+
+  describe("desactivar", () => {
+    const productoBase = {
+      id: "prod-1",
+      nombre: "Remera",
+      talle: "M",
+      precioCentavos: BigInt(15000),
+      stock: 10,
+      descripcion: null,
+      imagenes: [],
+      creadoEn: new Date(),
+      actualizadoEn: new Date(),
+    };
+
+    it("deberia desactivar un producto activo exitosamente", async () => {
+      const productoActivo = { ...productoBase, activo: true };
+      const productoDesactivado = { ...productoBase, activo: false };
+
+      prisma.producto.findUnique.mockResolvedValue(productoActivo);
+      prisma.producto.update.mockResolvedValue(productoDesactivado);
+
+      const result = await service.desactivar("prod-1");
+
+      expect(prisma.producto.update).toHaveBeenCalledWith({
+        where: { id: "prod-1" },
+        data: { activo: false },
+      });
+      expect(result.activo).toBe(false);
+    });
+
+    it("deberia lanzar NotFoundException si el producto no existe", async () => {
+      prisma.producto.findUnique.mockResolvedValue(null);
+
+      await expect(service.desactivar("prod-1")).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(prisma.producto.update).not.toHaveBeenCalled();
+    });
+
+    it("deberia lanzar BadRequestException si el producto ya está desactivado", async () => {
+      const productoInactivo = { ...productoBase, activo: false };
+      prisma.producto.findUnique.mockResolvedValue(productoInactivo);
+
+      await expect(service.desactivar("prod-1")).rejects.toThrow(
+        new BadRequestException("Este producto ya está desactivado"),
+      );
+      expect(prisma.producto.update).not.toHaveBeenCalled();
     });
   });
 

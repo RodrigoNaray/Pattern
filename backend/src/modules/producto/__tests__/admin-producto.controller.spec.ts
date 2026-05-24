@@ -12,6 +12,7 @@ const mockProductoService = {
   listar: jest.fn(),
   obtenerUno: jest.fn(),
   actualizarAdmin: jest.fn(),
+  desactivar: jest.fn(),
 };
 
 const mockImagenService = {
@@ -275,6 +276,50 @@ describe("AdminProductoController", () => {
       await expect(
         controller.actualizar("prod-inexistente", dto, []),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("desactivar", () => {
+    it("deberia desactivar un producto activo y retornar mensaje de confirmacion", async () => {
+      const productoDesactivado = {
+        id: "prod-1",
+        nombre: "Remera",
+        descripcion: null,
+        talle: "M",
+        precioCentavos: BigInt(15000),
+        stock: 10,
+        imagenes: [],
+        activo: false,
+        creadoEn: new Date(),
+        actualizadoEn: new Date(),
+      };
+      mockProductoService.desactivar.mockResolvedValue(productoDesactivado);
+
+      const result = await controller.desactivar("prod-1");
+
+      expect(mockProductoService.desactivar).toHaveBeenCalledWith("prod-1");
+      expect(result.mensaje).toBe("Producto desactivado exitosamente");
+      expect(result.producto.activo).toBe(false);
+    });
+
+    it("deberia propagar NotFoundException si el producto no existe", async () => {
+      mockProductoService.desactivar.mockRejectedValue(
+        new NotFoundException("Producto no encontrado"),
+      );
+
+      await expect(controller.desactivar("prod-inexistente")).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it("deberia propagar BadRequestException si el producto ya está desactivado", async () => {
+      mockProductoService.desactivar.mockRejectedValue(
+        new BadRequestException("Este producto ya está desactivado"),
+      );
+
+      await expect(controller.desactivar("prod-1")).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });
