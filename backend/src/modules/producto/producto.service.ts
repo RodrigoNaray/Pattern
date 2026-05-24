@@ -3,6 +3,7 @@ import { PrismaService } from "@common/config/database/prisma.service";
 import { CreateProductoDto } from "./dto/create-producto.dto";
 import { UpdateProductoDto } from "./dto/update-producto.dto";
 import { PublicarProductoDto } from "./dto/publicar-producto.dto";
+import { ActualizarProductoDto } from "./dto/actualizar-producto.dto";
 
 @Injectable()
 export class ProductoService {
@@ -77,6 +78,32 @@ export class ProductoService {
       where: { id },
       data: datosPrisma,
     });
+    return this.construirRespuesta(producto);
+  }
+
+  async actualizarAdmin(
+    id: string,
+    dto: ActualizarProductoDto,
+    urlsNuevasImagenes?: string[],
+  ) {
+    const existente = await this.prisma.producto.findUnique({ where: { id } });
+    if (!existente) throw new NotFoundException("Producto no encontrado");
+
+    const datos: Record<string, unknown> = {};
+    if (dto.nombre !== undefined) datos.nombre = dto.nombre;
+    if (dto.descripcion !== undefined)
+      datos.descripcion = dto.descripcion ?? null;
+    if (dto.talle !== undefined) datos.talle = dto.talle;
+    if (dto.precioCentavos !== undefined)
+      datos.precioCentavos = BigInt(dto.precioCentavos);
+    if (dto.stock !== undefined) datos.stock = dto.stock;
+    if (urlsNuevasImagenes !== undefined) datos.imagenes = urlsNuevasImagenes;
+
+    const producto = await this.prisma.producto.update({
+      where: { id },
+      data: datos,
+    });
+
     return this.construirRespuesta(producto);
   }
 
