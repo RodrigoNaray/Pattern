@@ -1,13 +1,11 @@
-export const metadata = {
-  title: 'Gestion de Productos | Tienda de Ropa',
-  description: 'Administra los productos de la tienda.',
+import type { Metadata } from 'next';
+import AdminProductosClient from './AdminProductosClient';
+
+export const metadata: Metadata = {
+  title: 'Gestión de Productos | Tienda de Ropa',
+  description: 'Publica y administra los productos de la tienda.',
 };
 
 export default function AdminProductosPage() {
-  return (
-    <div>
-      <h2>Gestion de Productos</h2>
-      <p>Listado y administracion de productos.</p>
-    </div>
-  );
+  return <AdminProductosClient />;
 }

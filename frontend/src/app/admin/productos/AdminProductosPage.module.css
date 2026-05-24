@@ -1,0 +1,163 @@
+.pagina {
+  padding: var(--space-2xl) var(--space-xl);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.cabecera {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: var(--space-2xl);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-lg);
+}
+
+.tituloPagina {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.botonNuevo {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-bg-primary);
+  background-color: var(--color-accent-green);
+  border: 1px solid var(--color-accent-green);
+  border-radius: var(--border-radius);
+  padding: var(--space-sm) var(--space-lg);
+  cursor: pointer;
+  transition: opacity 150ms ease-out;
+  white-space: nowrap;
+}
+
+.botonNuevo:hover {
+  opacity: 0.85;
+}
+
+.bannerExito {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(74, 93, 78, 0.08);
+  border: 1px solid rgba(74, 93, 78, 0.25);
+  border-radius: var(--border-radius);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.textoExito {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-success);
+}
+
+.botonCerrarExito {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  padding: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.botonCerrarExito:hover {
+  opacity: 0.7;
+}
+
+.estadoVacio {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-xl);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--border-radius);
+}
+
+.textoVacio {
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-md);
+}
+
+.listaProductos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-lg);
+}
+
+.tarjetaProducto {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background-color: var(--color-bg-primary);
+  transition: border-color 150ms ease-out;
+}
+
+.tarjetaProducto:hover {
+  border-color: var(--color-border-hover);
+}
+
+.imagenTarjeta {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background-color: var(--color-bg-secondary);
+  display: block;
+}
+
+.imagenPlaceholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--color-bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconoImagen {
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-muted);
+}
+
+.cuerpoTarjeta {
+  padding: var(--space-md);
+}
+
+.nombreProducto {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.metaProducto {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.talleTag {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--border-radius-sm);
+  padding: 2px var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.precioProducto {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-accent-green);
+}
