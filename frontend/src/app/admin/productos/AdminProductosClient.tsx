@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import NuevoProductoForm from './NuevoProductoForm';
 import type { ProductoPublicado } from '../../../services/admin-producto.service';
+import { listarProductosAdmin } from '../../../services/admin-producto.service';
 import styles from './AdminProductosPage.module.css';
 import { fadeInUp, motionConfig } from '../../../lib/animations';
 
@@ -24,6 +26,7 @@ export default function AdminProductosClient() {
 
   const [productos, setProductos] = useState<ProductoPublicado[]>([]);
   const [productoPublicado, setProductoPublicado] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(true);
 
   const mostrarFormulario = searchParams.get('accion') === 'nuevo';
 
@@ -43,6 +46,16 @@ export default function AdminProductosClient() {
     },
     [router],
   );
+
+  useEffect(() => {
+    void (async () => {
+      const resultado = await listarProductosAdmin();
+      if (resultado.ok) {
+        setProductos(resultado.value.productos);
+      }
+      setCargando(false);
+    })();
+  }, []);
 
   useEffect(() => {
     if (productoPublicado) {
@@ -87,7 +100,9 @@ export default function AdminProductosClient() {
         )}
       </AnimatePresence>
 
-      {productos.length === 0 ? (
+      {cargando ? (
+        <p className={styles.textoCargando}>Cargando productos...</p>
+      ) : productos.length === 0 ? (
         <div className={styles.estadoVacio}>
           <p className={styles.textoVacio}>Aún no hay productos publicados.</p>
           <button type="button" className={styles.botonNuevo} onClick={abrirFormulario}>
@@ -118,6 +133,12 @@ export default function AdminProductosClient() {
                     {formatearPrecio(producto.precioCentavos)}
                   </span>
                 </div>
+                <Link
+                  href={`/admin/productos/${producto.id}/editar`}
+                  className={styles.enlaceEditar}
+                >
+                  Editar
+                </Link>
               </div>
             </li>
           ))}

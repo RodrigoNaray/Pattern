@@ -161,3 +161,30 @@
   font-weight: 500;
   color: var(--color-accent-green);
 }
+
+.textoCargando {
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-2xl) 0;
+}
+
+.enlaceEditar {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-accent-green);
+  text-decoration: none;
+  border: 1px solid var(--color-accent-green);
+  border-radius: var(--border-radius);
+  padding: 2px var(--space-sm);
+  margin-top: var(--space-sm);
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.enlaceEditar:hover {
+  background-color: var(--color-accent-green);
+  color: var(--color-bg-primary);
+}
