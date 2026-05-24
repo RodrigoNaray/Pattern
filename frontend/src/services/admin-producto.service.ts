@@ -174,3 +174,37 @@ export async function actualizarProducto(
     return { ok: false, error: error instanceof Error ? error : new Error('Error de red') };
   }
 }
+
+export interface DesactivarProductoResponse {
+  mensaje: string;
+  producto: ProductoPublicado;
+}
+
+export async function desactivarProducto(
+  id: string,
+): Promise<Result<DesactivarProductoResponse>> {
+  const token = obtenerToken();
+  if (!token) return { ok: false, error: new Error('No autenticado') };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/productos/${id}/desactivar`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      const mensaje =
+        (data as { message?: string | string[] }).message ??
+        'Error al desactivar el producto';
+      const mensajeStr = Array.isArray(mensaje) ? mensaje[0] : mensaje;
+      return { ok: false, error: new Error(mensajeStr ?? 'Error desconocido') };
+    }
+    const data = (await response.json()) as DesactivarProductoResponse;
+    return { ok: true, value: data };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error : new Error('Error de red'),
+    };
+  }
+}
