@@ -6,5 +6,6 @@ dist
 .agents
 .design-context
 *.tsbuildinfo
+.next
 skills-lock.json
 AGENTS.md
