@@ -322,6 +322,86 @@ describe("ProductoService", () => {
     });
   });
 
+  describe("actualizarAdmin", () => {
+    const existente = {
+      id: "prod-1",
+      nombre: "Vieja",
+      talle: "M",
+      precioCentavos: BigInt(10000),
+      stock: 5,
+      descripcion: null,
+      imagenes: [],
+      activo: true,
+      creadoEn: new Date(),
+      actualizadoEn: new Date(),
+    };
+
+    it("deberia actualizar solo los campos proporcionados", async () => {
+      const actualizado = {
+        ...existente,
+        nombre: "Nueva",
+        precioCentavos: BigInt(12000),
+        actualizadoEn: new Date(),
+      };
+
+      prisma.producto.findUnique.mockResolvedValue(existente);
+      prisma.producto.update.mockResolvedValue(actualizado);
+
+      const result = await service.actualizarAdmin("prod-1", {
+        nombre: "Nueva",
+        precioCentavos: 12000,
+      });
+
+      expect(prisma.producto.update).toHaveBeenCalledWith({
+        where: { id: "prod-1" },
+        data: { nombre: "Nueva", precioCentavos: BigInt(12000) },
+      });
+      expect(result.nombre).toBe("Nueva");
+    });
+
+    it("deberia actualizar imagenes cuando se proporcionan nuevas URLs", async () => {
+      prisma.producto.findUnique.mockResolvedValue(existente);
+      prisma.producto.update.mockResolvedValue({
+        ...existente,
+        imagenes: ["nueva.jpg"],
+      });
+
+      await service.actualizarAdmin("prod-1", {}, ["nueva.jpg"]);
+
+      expect(prisma.producto.update).toHaveBeenCalledWith({
+        where: { id: "prod-1" },
+        data: { imagenes: ["nueva.jpg"] },
+      });
+    });
+
+    it("deberia lanzar NotFoundException si el producto no existe", async () => {
+      prisma.producto.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.actualizarAdmin("prod-inexistente", {}),
+      ).rejects.toThrow(NotFoundException);
+      expect(prisma.producto.update).not.toHaveBeenCalled();
+    });
+
+    it("deberia actualizar descripcion a null cuando se envía string vacío undefined", async () => {
+      const conDescripcion = { ...existente, descripcion: "Vieja desc" };
+      prisma.producto.findUnique.mockResolvedValue(conDescripcion);
+      prisma.producto.update.mockResolvedValue({
+        ...conDescripcion,
+        descripcion: null,
+      });
+
+      // descripcion omitida (no presente en el dto) → equivalente a undefined con exactOptionalPropertyTypes
+      await service.actualizarAdmin("prod-1", {});
+
+      // descripcion undefined → no debe aparecer en datos
+      expect(prisma.producto.update).toHaveBeenCalledWith({
+        where: { id: "prod-1" },
+        data: {},
+      });
+    });
+  });
+
   describe("eliminar", () => {
     it("deberia eliminar un producto exitosamente", async () => {
       const productoExistente = {
