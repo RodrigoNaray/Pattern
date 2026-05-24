@@ -188,3 +188,133 @@
   background-color: var(--color-accent-green);
   color: var(--color-bg-primary);
 }
+
+/* CU-14: Desactivar producto */
+
+.bannerError {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(184, 74, 58, 0.06);
+  border: 1px solid rgba(184, 74, 58, 0.2);
+  border-radius: var(--border-radius);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.textoError {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-error);
+}
+
+.botonCerrarError {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  padding: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.botonCerrarError:hover {
+  opacity: 0.7;
+}
+
+.badgeInactivo {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--border-radius-sm);
+  padding: 2px var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.accionesTarjeta {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+.botonDesactivar {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-error);
+  background: none;
+  border: 1px solid var(--color-error);
+  border-radius: var(--border-radius);
+  padding: 2px var(--space-sm);
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+
+.botonDesactivar:hover {
+  background-color: var(--color-error);
+  color: var(--color-bg-primary);
+}
+
+.confirmacion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.textoConfirmacion {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.botonConfirmar {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-bg-primary);
+  background-color: var(--color-error);
+  border: 1px solid var(--color-error);
+  border-radius: var(--border-radius);
+  padding: 2px var(--space-sm);
+  cursor: pointer;
+  transition: opacity 150ms ease-out;
+  min-width: 28px;
+}
+
+.botonConfirmar:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.botonConfirmar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.botonCancelarConfirmacion {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 2px var(--space-sm);
+  cursor: pointer;
+  transition: border-color 150ms ease-out, color 150ms ease-out;
+}
+
+.botonCancelarConfirmacion:hover:not(:disabled) {
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+}
+
+.botonCancelarConfirmacion:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

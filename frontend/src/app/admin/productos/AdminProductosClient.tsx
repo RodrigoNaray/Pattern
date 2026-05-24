@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import NuevoProductoForm from './NuevoProductoForm';
 import type { ProductoPublicado } from '../../../services/admin-producto.service';
-import { listarProductosAdmin } from '../../../services/admin-producto.service';
+import { listarProductosAdmin, desactivarProducto } from '../../../services/admin-producto.service';
 import styles from './AdminProductosPage.module.css';
 import { fadeInUp, motionConfig } from '../../../lib/animations';
 
@@ -27,6 +27,9 @@ export default function AdminProductosClient() {
   const [productos, setProductos] = useState<ProductoPublicado[]>([]);
   const [productoPublicado, setProductoPublicado] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
+  const [desactivando, setDesactivando] = useState<string | null>(null);
+  const [productoAConfirmar, setProductoAConfirmar] = useState<string | null>(null);
+  const [errorDesactivar, setErrorDesactivar] = useState<string | null>(null);
 
   const mostrarFormulario = searchParams.get('accion') === 'nuevo';
 
@@ -64,6 +67,28 @@ export default function AdminProductosClient() {
     }
   }, [productoPublicado]);
 
+  useEffect(() => {
+    if (errorDesactivar) {
+      const temporizador = setTimeout(() => setErrorDesactivar(null), 5000);
+      return () => clearTimeout(temporizador);
+    }
+  }, [errorDesactivar]);
+
+  const manejarDesactivar = useCallback(async (id: string) => {
+    setDesactivando(id);
+    setErrorDesactivar(null);
+    const resultado = await desactivarProducto(id);
+    setDesactivando(null);
+    setProductoAConfirmar(null);
+    if (!resultado.ok) {
+      setErrorDesactivar(resultado.error.message);
+      return;
+    }
+    setProductos((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, activo: false } : p)),
+    );
+  }, []);
+
   return (
     <section className={styles.pagina}>
       <div className={styles.cabecera}>
@@ -93,6 +118,28 @@ export default function AdminProductosClient() {
               className={styles.botonCerrarExito}
               onClick={() => setProductoPublicado(null)}
               aria-label="Cerrar mensaje de éxito"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+        {errorDesactivar && (
+          <motion.div
+            className={styles.bannerError}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={fadeInUp}
+            transition={motionConfig}
+            role="alert"
+            aria-live="assertive"
+          >
+            <p className={styles.textoError}>{errorDesactivar}</p>
+            <button
+              type="button"
+              className={styles.botonCerrarError}
+              onClick={() => setErrorDesactivar(null)}
+              aria-label="Cerrar mensaje de error"
             >
               ✕
             </button>
@@ -132,13 +179,52 @@ export default function AdminProductosClient() {
                   <span className={styles.precioProducto}>
                     {formatearPrecio(producto.precioCentavos)}
                   </span>
+                  {!producto.activo && (
+                    <span className={styles.badgeInactivo}>Inactivo</span>
+                  )}
                 </div>
-                <Link
-                  href={`/admin/productos/${producto.id}/editar`}
-                  className={styles.enlaceEditar}
-                >
-                  Editar
-                </Link>
+                <div className={styles.accionesTarjeta}>
+                  <Link
+                    href={`/admin/productos/${producto.id}/editar`}
+                    className={styles.enlaceEditar}
+                  >
+                    Editar
+                  </Link>
+                  {producto.activo && (
+                    productoAConfirmar === producto.id ? (
+                      <div className={styles.confirmacion} role="group" aria-label="Confirmar desactivación">
+                        <span className={styles.textoConfirmacion}>¿Desactivar?</span>
+                        <button
+                          type="button"
+                          className={styles.botonConfirmar}
+                          onClick={() => void manejarDesactivar(producto.id)}
+                          disabled={desactivando === producto.id}
+                          aria-label={`Confirmar desactivación de ${producto.nombre}`}
+                        >
+                          {desactivando === producto.id ? '...' : 'Sí'}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.botonCancelarConfirmacion}
+                          onClick={() => setProductoAConfirmar(null)}
+                          disabled={desactivando === producto.id}
+                          aria-label="Cancelar desactivación"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.botonDesactivar}
+                        onClick={() => setProductoAConfirmar(producto.id)}
+                        aria-label={`Desactivar ${producto.nombre}`}
+                      >
+                        Desactivar
+                      </button>
+                    )
+                  )}
+                </div>
               </div>
             </li>
           ))}
