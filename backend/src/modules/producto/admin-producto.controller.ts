@@ -1,6 +1,9 @@
 import {
   Controller,
   Post,
+  Get,
+  Put,
+  Param,
   Body,
   UploadedFiles,
   UseGuards,
@@ -8,8 +11,8 @@ import {
   BadRequestException,
   HttpCode,
   HttpStatus,
-} from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+} from "@nestjs/common";
+import { FilesInterceptor } from "@nestjs/platform-express";
 import {
   ApiTags,
   ApiOperation,
@@ -17,17 +20,18 @@ import {
   ApiBearerAuth,
   ApiConsumes,
   ApiBody,
-} from '@nestjs/swagger';
-import { memoryStorage } from 'multer';
-import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
-import { ProductoService } from './producto.service';
-import { ImagenService } from './imagen.service';
-import { PublicarProductoDto } from './dto/publicar-producto.dto';
+} from "@nestjs/swagger";
+import { memoryStorage } from "multer";
+import { JwtAuthGuard } from "@modules/auth/guards/jwt-auth.guard";
+import { ProductoService } from "./producto.service";
+import { ImagenService } from "./imagen.service";
+import { PublicarProductoDto } from "./dto/publicar-producto.dto";
+import { ActualizarProductoDto } from "./dto/actualizar-producto.dto";
 
-@ApiTags('admin/productos')
+@ApiTags("admin/productos")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('admin/productos')
+@Controller("admin/productos")
 export class AdminProductoController {
   constructor(
     private readonly productoService: ProductoService,
@@ -37,32 +41,32 @@ export class AdminProductoController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
-    FilesInterceptor('imagenes', 10, {
+    FilesInterceptor("imagenes", 10, {
       storage: memoryStorage(),
       limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Publicar un nuevo producto (admin)' })
+  @ApiConsumes("multipart/form-data")
+  @ApiOperation({ summary: "Publicar un nuevo producto (admin)" })
   @ApiBody({
     schema: {
-      type: 'object',
-      required: ['nombre', 'talle', 'precioCentavos', 'imagenes'],
+      type: "object",
+      required: ["nombre", "talle", "precioCentavos", "imagenes"],
       properties: {
-        nombre: { type: 'string', minLength: 3, example: 'Remera Algodón' },
-        descripcion: { type: 'string', example: 'Remera de algodón 100%' },
-        talle: { type: 'string', example: 'M' },
-        precioCentavos: { type: 'number', example: 15000 },
+        nombre: { type: "string", minLength: 3, example: "Remera Algodón" },
+        descripcion: { type: "string", example: "Remera de algodón 100%" },
+        talle: { type: "string", example: "M" },
+        precioCentavos: { type: "number", example: 15000 },
         imagenes: {
-          type: 'array',
-          items: { type: 'string', format: 'binary' },
+          type: "array",
+          items: { type: "string", format: "binary" },
         },
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'Producto publicado exitosamente' })
-  @ApiResponse({ status: 400, description: 'Datos inválidos o sin imágenes' })
-  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 201, description: "Producto publicado exitosamente" })
+  @ApiResponse({ status: 400, description: "Datos inválidos o sin imágenes" })
+  @ApiResponse({ status: 401, description: "No autenticado" })
   async publicar(
     @Body() dto: PublicarProductoDto,
     @UploadedFiles() archivos: Express.Multer.File[],
@@ -70,14 +74,101 @@ export class AdminProductoController {
     const archivosValidos = archivos ?? [];
 
     if (archivosValidos.length === 0) {
-      throw new BadRequestException('Seleccione al menos una imagen valida');
+      throw new BadRequestException("Seleccione al menos una imagen valida");
     }
 
     const urlsImagenes = await this.imagenService.guardar(archivosValidos);
     const producto = await this.productoService.publicar(dto, urlsImagenes);
 
     return {
-      mensaje: 'Producto publicado exitosamente',
+      mensaje: "Producto publicado exitosamente",
+      producto,
+    };
+  }
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Listar todos los productos (admin)" })
+  @ApiResponse({ status: 200, description: "Lista de productos" })
+  @ApiResponse({ status: 401, description: "No autenticado" })
+  async listar() {
+    return this.productoService.listar();
+  }
+
+  @Get(":id")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Obtener un producto por ID (admin)" })
+  @ApiResponse({ status: 200, description: "Producto encontrado" })
+  @ApiResponse({ status: 401, description: "No autenticado" })
+  @ApiResponse({ status: 404, description: "Producto no encontrado" })
+  async obtenerUno(@Param("id") id: string) {
+    return this.productoService.obtenerUno(id);
+  }
+
+  @Put(":id")
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(
+    FilesInterceptor("imagenes", 10, {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  @ApiConsumes("multipart/form-data")
+  @ApiOperation({ summary: "Actualizar un producto existente (admin)" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        nombre: { type: "string", minLength: 3, example: "Remera Algodón" },
+        descripcion: { type: "string", example: "Remera de algodón 100%" },
+        talle: { type: "string", example: "M" },
+        precioCentavos: { type: "number", example: 15000 },
+        stock: { type: "number", example: 10 },
+        imagenes: {
+          type: "array",
+          items: { type: "string", format: "binary" },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Producto actualizado exitosamente",
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Datos inválidos o imagen inválida",
+  })
+  @ApiResponse({ status: 401, description: "No autenticado" })
+  @ApiResponse({ status: 404, description: "Producto no encontrado" })
+  async actualizar(
+    @Param("id") id: string,
+    @Body() dto: ActualizarProductoDto,
+    @UploadedFiles() archivos: Express.Multer.File[],
+  ) {
+    const archivosValidos = archivos ?? [];
+
+    let urlsNuevasImagenes: string[] | undefined;
+    let urlsImagenesAntiguas: string[] | undefined;
+
+    if (archivosValidos.length > 0) {
+      const productoActual = await this.productoService.obtenerUno(id);
+      urlsImagenesAntiguas = productoActual.imagenes;
+      urlsNuevasImagenes = await this.imagenService.guardar(archivosValidos);
+    }
+
+    const producto = await this.productoService.actualizarAdmin(
+      id,
+      dto,
+      urlsNuevasImagenes,
+    );
+
+    if (urlsImagenesAntiguas && urlsImagenesAntiguas.length > 0) {
+      await this.imagenService.eliminar(urlsImagenesAntiguas);
+    }
+
+    return {
+      mensaje: "Producto actualizado exitosamente",
       producto,
     };
   }
