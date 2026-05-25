@@ -107,13 +107,13 @@ model Administrador {
 
 model ConfiguracionTienda {
   id                    String   @id @default("global")
-  nombreTienda          String
-  whatsappContacto      String
-  banco                 String
-  cbu                   String
-  alias                 String
-  titular               String
-  mensajeTransferencia  String
+  nombreTienda          String?
+  whatsappContacto      String?
+  banco                 String?
+  cbu                   String?
+  alias                 String?
+  titular               String?
+  mensajeTransferencia  String?
   actualizadoEn         DateTime @updatedAt
   pedidoVencimientoHoras Int     @default(48)
   estadoProductoBorrador Boolean @default(true)
