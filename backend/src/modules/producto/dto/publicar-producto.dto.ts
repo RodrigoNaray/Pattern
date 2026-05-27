@@ -29,6 +29,12 @@ export class PublicarProductoDto {
   @Min(1, { message: 'El precio debe ser mayor a cero' })
   readonly precioCentavos: number;
 
+  @ApiPropertyOptional({ description: 'Stock inicial', example: 100 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  readonly stock?: number;
+
   constructor(
     nombre: string,
     talle: TalleValido,

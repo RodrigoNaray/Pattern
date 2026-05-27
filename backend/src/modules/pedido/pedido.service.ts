@@ -358,6 +358,16 @@ export class PedidoService {
     }
 
     const resultado = await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Re-leer el pedido y sus items dentro de la transacción para asegurar consistencia
+      const pedidoEnTransaccion = await tx.pedido.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+
+      if (!pedidoEnTransaccion) {
+        throw new NotFoundException('Pedido no encontrado durante la transacción');
+      }
+
       await tx.pedido.update({
         where: { id },
         data: {
@@ -368,7 +378,7 @@ export class PedidoService {
 
       const productosActualizados: string[] = [];
 
-      for (const item of pedido.items) {
+      for (const item of pedidoEnTransaccion.items) {
         const productoActualizado = await tx.producto.update({
           where: { id: item.productoId },
           data: { stock: { decrement: item.cantidad } },
