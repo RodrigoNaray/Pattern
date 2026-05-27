@@ -6,10 +6,12 @@ import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { DatabaseModule } from "@common/config/database/database.module";
 
 @Module({
   imports: [
     ConfigModule,
+    DatabaseModule,
     PassportModule.register({ defaultStrategy: "jwt" }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
