@@ -135,8 +135,9 @@ export class PedidoService {
 
     const codigo = this.generarCodigoReferencia();
     const ahora = new Date();
+    const vencimientoHoras = await this.obtenerVencimientoHorasConfig();
     const vencidoEn = new Date(
-      ahora.getTime() + this.obtenerVencimientoHoras() * 60 * 60 * 1000,
+      ahora.getTime() + vencimientoHoras * 60 * 60 * 1000,
     );
 
     let totalCentavosBig = BigInt(0);
@@ -259,40 +260,54 @@ export class PedidoService {
     };
   }
 
-  async listarPendientes(): Promise<PedidoPendienteDto[]> {
-    const pedidos = await this.prisma.pedido.findMany({
-      where: {
-        estado: PedidoService.estadoPendientePago,
-      },
-      orderBy: { creadoEn: 'desc' },
-      include: {
-        _count: {
-          select: { items: true },
-        },
-      },
-    });
+  async listarPendientes(params?: { pagina?: number; tamano?: number }): Promise<{ pedidos: PedidoPendienteDto[]; total: number; pagina: number; tamano: number }> {
+    const { pagina = 1, tamano = 20 } = params ?? {};
 
-    return pedidos.map(
-      (p: {
-        id: string;
-        codigo: string;
-        emailComprador: string;
-        telefonoComprador: string;
-        totalCentavos: bigint;
-        creadoEn: Date;
-        vencidoEn: Date;
-        _count: { items: number };
-      }) => ({
-        id: p.id,
-        codigo: p.codigo,
-        emailComprador: p.emailComprador,
-        telefonoComprador: p.telefonoComprador,
-        totalCentavos: Number(p.totalCentavos),
-        creadoEn: p.creadoEn,
-        vencidoEn: p.vencidoEn,
-        itemsCount: p._count.items,
+    const [total, pedidos] = await Promise.all([
+      this.prisma.pedido.count({
+        where: { estado: PedidoService.estadoPendientePago },
       }),
-    );
+      this.prisma.pedido.findMany({
+        where: {
+          estado: PedidoService.estadoPendientePago,
+        },
+        orderBy: { creadoEn: 'desc' },
+        skip: (pagina - 1) * tamano,
+        take: tamano,
+        include: {
+          _count: {
+            select: { items: true },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      pedidos: pedidos.map(
+        (p: {
+          id: string;
+          codigo: string;
+          emailComprador: string;
+          telefonoComprador: string;
+          totalCentavos: bigint;
+          creadoEn: Date;
+          vencidoEn: Date;
+          _count: { items: number };
+        }) => ({
+          id: p.id,
+          codigo: p.codigo,
+          emailComprador: p.emailComprador,
+          telefonoComprador: p.telefonoComprador,
+          totalCentavos: Number(p.totalCentavos),
+          creadoEn: p.creadoEn,
+          vencidoEn: p.vencidoEn,
+          itemsCount: p._count.items,
+        }),
+      ),
+      total,
+      pagina,
+      tamano,
+    };
   }
 
   async confirmarPago(id: string) {
@@ -414,12 +429,18 @@ export class PedidoService {
       throw new BadRequestException('Datos de pago no disponibles');
     }
 
+    const banco = configuracion.banco ?? '';
+    const cbu = configuracion.cbu ?? '';
+    const alias = configuracion.alias ?? '';
+    const titular = configuracion.titular ?? '';
+    const whatsappContacto = configuracion.whatsappContacto ?? '';
+
     const camposRequeridos = [
-      { campo: 'banco', valor: configuracion.banco },
-      { campo: 'cbu', valor: configuracion.cbu },
-      { campo: 'alias', valor: configuracion.alias },
-      { campo: 'titular', valor: configuracion.titular },
-      { campo: 'whatsappContacto', valor: configuracion.whatsappContacto },
+      { campo: 'banco', valor: banco },
+      { campo: 'cbu', valor: cbu },
+      { campo: 'alias', valor: alias },
+      { campo: 'titular', valor: titular },
+      { campo: 'whatsappContacto', valor: whatsappContacto },
     ] as const;
 
     const camposVacios = camposRequeridos.filter(
@@ -430,7 +451,7 @@ export class PedidoService {
       throw new BadRequestException('Datos de pago no disponibles');
     }
 
-    const whatsappNumeros = configuracion.whatsappContacto.replace(
+    const whatsappNumeros = whatsappContacto.replace(
       /[^0-9]/g,
       '',
     );
@@ -446,12 +467,12 @@ export class PedidoService {
     }).format(Number(pedido.totalCentavos) / 100);
 
     const resultado: PedidoInstruccionesPagoDto = {
-      banco: configuracion.banco,
-      cbu: configuracion.cbu,
-      alias: configuracion.alias,
-      titular: configuracion.titular,
-      mensajeTransferencia: configuracion.mensajeTransferencia,
-      whatsappContacto: configuracion.whatsappContacto,
+      banco,
+      cbu,
+      alias,
+      titular,
+      mensajeTransferencia: configuracion.mensajeTransferencia ?? '',
+      whatsappContacto,
       numeroPedido: pedido.codigo,
       totalFormateado,
       estadoPedido: pedido.estado,
@@ -477,8 +498,15 @@ export class PedidoService {
     return `PED-${codigo.join('')}`;
   }
 
-  private obtenerVencimientoHoras(): number {
-    return 48;
+  async obtenerVencimientoHorasConfig(): Promise<number> {
+    try {
+      const config = await this.prisma.configuracionTienda.findUnique({
+        where: { id: 'global' },
+      });
+      return config?.pedidoVencimientoHoras ?? 48;
+    } catch {
+      return 48;
+    }
   }
 
   async cancelar(id: string): Promise<CancelarPedidoResponse> {

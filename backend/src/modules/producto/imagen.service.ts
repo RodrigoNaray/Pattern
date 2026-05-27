@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
 import { writeFile, unlink } from "fs/promises";
@@ -13,9 +14,9 @@ export class ImagenService {
   private readonly directorioUpload: string;
   private readonly urlBase: string;
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     this.directorioUpload = join(process.cwd(), "uploads", "productos");
-    this.urlBase = process.env["API_URL"] ?? "http://localhost:3000";
+    this.urlBase = this.configService.get<string>("API_URL") ?? "http://localhost:3000";
     this.asegurarDirectorio();
   }
 

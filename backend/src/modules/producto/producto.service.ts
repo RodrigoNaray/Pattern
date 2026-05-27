@@ -163,7 +163,7 @@ export class ProductoService {
     nombre: string;
     descripcion: string | null;
     talle: string;
-    precioCentavos: bigint;
+    precioCentavos: bigint | number;
     stock: number;
     imagenes: string[];
     activo: boolean;
@@ -174,19 +174,23 @@ export class ProductoService {
     nombre: string;
     descripcion: string | null;
     talle: string;
-    precioCentavos: bigint;
+    precioCentavos: number;
     stock: number;
     imagenes: string[];
     activo: boolean;
     creadoEn: Date;
     actualizadoEn: Date;
   } {
+    const precioNum: number = typeof p.precioCentavos === 'bigint'
+      ? Number(p.precioCentavos)
+      : p.precioCentavos;
+
     return {
       id: p.id,
       nombre: p.nombre,
       descripcion: p.descripcion,
       talle: p.talle,
-      precioCentavos: p.precioCentavos,
+      precioCentavos: precioNum,
       stock: p.stock,
       imagenes: p.imagenes,
       activo: p.activo,

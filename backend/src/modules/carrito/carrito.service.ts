@@ -179,8 +179,11 @@ export class CarritoService {
     return this.validarYConvertirAResumen(producto, cantidad);
   }
 
-  async eliminarDelCarrito(productoId: string): Promise<void> {
-    const producto = await this.obtenerProductoPorId(productoId);
-    void producto;
+  async eliminarDelCarrito(productoId: string): Promise<{ mensaje: string; carrito: CarritoItemResumen[] }> {
+    await this.obtenerProductoPorId(productoId);
+    return {
+      mensaje: 'Producto eliminado del carrito',
+      carrito: [],
+    };
   }
 }

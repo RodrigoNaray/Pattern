@@ -3,6 +3,8 @@ import {
   Post,
   Get,
   Put,
+  Patch,
+  Delete,
   Param,
   Body,
   UploadedFiles,
@@ -27,6 +29,8 @@ import { ProductoService } from "./producto.service";
 import { ImagenService } from "./imagen.service";
 import { PublicarProductoDto } from "./dto/publicar-producto.dto";
 import { ActualizarProductoDto } from "./dto/actualizar-producto.dto";
+import { CreateProductoDto } from "./dto/create-producto.dto";
+import { UpdateProductoDto } from "./dto/update-producto.dto";
 
 @ApiTags("admin/productos")
 @ApiBearerAuth()
@@ -105,7 +109,17 @@ export class AdminProductoController {
     return this.productoService.obtenerUno(id);
   }
 
-  @Put(":id")
+  @Post("draft")
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: "Crear producto en borrador (admin)" })
+  @ApiResponse({ status: 201, description: "Producto borrador creado" })
+  @ApiResponse({ status: 401, description: "No autenticado" })
+  async crearDraft(@Body() dto: CreateProductoDto) {
+    const producto = await this.productoService.crear(dto);
+    return { mensaje: "Producto borrador creado exitosamente", producto };
+  }
+
+  @Patch(":id")
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(
     FilesInterceptor("imagenes", 10, {
@@ -171,6 +185,17 @@ export class AdminProductoController {
       mensaje: "Producto actualizado exitosamente",
       producto,
     };
+  }
+
+  @Delete(":id")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Eliminar un producto (admin)" })
+  @ApiResponse({ status: 200, description: "Producto eliminado" })
+  @ApiResponse({ status: 401, description: "No autenticado" })
+  @ApiResponse({ status: 404, description: "Producto no encontrado" })
+  async eliminar(@Param("id") id: string) {
+    await this.productoService.eliminar(id);
+    return { mensaje: "Producto eliminado exitosamente" };
   }
 
   @Put(":id/desactivar")

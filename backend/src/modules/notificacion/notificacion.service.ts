@@ -40,13 +40,13 @@ export class NotificacionService {
       pedidoId: string | null;
     }>
   > {
-    const condicion =
-      filtros.filtro === 'unread'
-        ? { leida: false }
-        : undefined;
+    const where: { leida?: boolean } = {};
+    if (filtros.filtro === 'unread') {
+      where.leida = false;
+    }
 
     return this.prisma.notificacion.findMany({
-      where: condicion,
+      where,
       orderBy: { creadoEn: 'desc' },
     });
   }
@@ -61,9 +61,23 @@ export class NotificacionService {
       throw new NotFoundException('Notificación no encontrada');
     }
 
+    const pedidoTransformado = notificacion.pedido
+      ? {
+          id: notificacion.pedido.id,
+          emailComprador: notificacion.pedido.emailComprador,
+          telefonoComprador: notificacion.pedido.telefonoComprador,
+          estado: notificacion.pedido.estado,
+          totalCentavos: Number(notificacion.pedido.totalCentavos),
+          codigo: notificacion.pedido.codigo,
+          creadoEn: notificacion.pedido.creadoEn,
+          confirmadoEn: notificacion.pedido.confirmadoEn,
+          vencidoEn: notificacion.pedido.vencidoEn,
+        }
+      : null;
+
     return {
       notificacion,
-      pedido: notificacion.pedido,
+      pedido: pedidoTransformado,
     };
   }
 
