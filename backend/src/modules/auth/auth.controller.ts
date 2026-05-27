@@ -37,22 +37,12 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, description: 'Sesión iniciada correctamente' })
   @ApiResponse({ status: 401, description: 'Credenciales inválidas' })
-  @UsePipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      stopAtFirstError: true,
-    }),
-  )
   async login(@Body() dto: LoginAdminDto) {
-    if (!dto.email || !dto.password) {
-      throw new BadRequestException('Complete todos los campos');
-    }
     return this.authService.validarAdmin(dto.email, dto.password);
   }
 
   @Post('registrar-admin')
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registrar nuevo administrador' })
   @ApiResponse({ status: 201, description: 'Administrador registrado' })
   async registrarAdmin(@Body() dto: RegistrarAdminDto) {

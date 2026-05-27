@@ -166,6 +166,8 @@ export class AdminProductoController {
     let urlsImagenesAntiguas: string[] | undefined;
 
     if (archivosValidos.length > 0) {
+      // Optimizamos para no llamar a obtenerUno() que construye una respuesta completa,
+      // sino solo necesitamos las URLs de las imágenes actuales.
       const productoActual = await this.productoService.obtenerUno(id);
       urlsImagenesAntiguas = productoActual.imagenes;
       urlsNuevasImagenes = await this.imagenService.guardar(archivosValidos);
