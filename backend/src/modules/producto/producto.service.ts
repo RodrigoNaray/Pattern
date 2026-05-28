@@ -15,7 +15,7 @@ export class ProductoService {
 
   async publicar(dto: PublicarProductoDto, urlsImagenes: string[]) {
     if (urlsImagenes.length === 0) {
-      throw new Error("Se requiere al menos una imagen");
+      throw new BadRequestException("Se requiere al menos una imagen");
     }
 
     const producto = await this.prisma.producto.create({
@@ -24,7 +24,7 @@ export class ProductoService {
         descripcion: dto.descripcion ?? null,
         talle: dto.talle,
         precioCentavos: BigInt(dto.precioCentavos),
-        stock: 0,
+        stock: dto.stock ?? 0,
         imagenes: urlsImagenes,
         activo: true,
       },
