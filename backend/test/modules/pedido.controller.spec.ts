@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PedidoController } from './pedido.controller';
-import { PedidoService } from './pedido.service';
-import { CreatePedidoDto } from './dto/create-pedido.dto';
-import { PedidoInstruccionesPagoDto } from './dto/pedido-instrucciones-pago.dto';
+import { PedidoController } from '@modules/pedido/pedido.controller';
+import { PedidoService } from '@modules/pedido/pedido.service';
+import { CreatePedidoDto } from '@modules/pedido/dto/create-pedido.dto';
+import { PedidoInstruccionesPagoDto } from '@modules/pedido/dto/pedido-instrucciones-pago.dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('PedidoController', () => {

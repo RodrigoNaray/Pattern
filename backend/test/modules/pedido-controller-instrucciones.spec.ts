@@ -1,8 +1,8 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@common/config/database/prisma.service';
-import { PedidoController } from '../pedido.controller';
-import { PedidoService } from '../pedido.service';
+import { PedidoController } from '@modules/pedido/pedido.controller';
+import { PedidoService } from '@modules/pedido/pedido.service';
 
 describe('PedidoController - obtenerInstruccionesPago', () => {
   let controller: PedidoController;

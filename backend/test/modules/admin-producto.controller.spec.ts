@@ -1,10 +1,10 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { AdminProductoController } from "../admin-producto.controller";
-import { ProductoService } from "../producto.service";
-import { ImagenService } from "../imagen.service";
-import { PublicarProductoDto } from "../dto/publicar-producto.dto";
-import { ActualizarProductoDto } from "../dto/actualizar-producto.dto";
+import { AdminProductoController } from "@modules/producto/admin-producto.controller";
+import { ProductoService } from "@modules/producto/producto.service";
+import { ImagenService } from "@modules/producto/imagen.service";
+import { PublicarProductoDto } from "@modules/producto/dto/publicar-producto.dto";
+import { ActualizarProductoDto } from "@modules/producto/dto/actualizar-producto.dto";
 import { JwtAuthGuard } from "@modules/auth/guards/jwt-auth.guard";
 
 const mockProductoService = {

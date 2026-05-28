@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@common/config/database/prisma.service';
-import { NotificacionService } from './notificacion.service';
+import { NotificacionService } from '@modules/notificacion/notificacion.service';
 
 describe('NotificacionService', () => {
   let service: NotificacionService;

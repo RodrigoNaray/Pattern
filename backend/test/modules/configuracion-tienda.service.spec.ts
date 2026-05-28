@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { ConfiguracionTiendaService } from './configuracion-tienda.service';
+import { ConfiguracionTiendaService } from '@modules/configuracion/configuracion-tienda.service';
 import { PrismaService } from '@common/config/database/prisma.service';
-import { ConfigurarTiendaDto } from './dto/configurar-tienda.dto';
+import { ConfigurarTiendaDto } from '@modules/configuracion/dto/configurar-tienda.dto';
 
 describe('ConfiguracionTiendaService', () => {
   let service: ConfiguracionTiendaService;

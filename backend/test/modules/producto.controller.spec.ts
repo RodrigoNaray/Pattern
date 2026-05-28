@@ -1,9 +1,9 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ProductoController } from "../producto.controller";
-import { ProductoService } from "../producto.service";
-import { CreateProductoDto } from "../dto/create-producto.dto";
-import { UpdateProductoDto } from "../dto/update-producto.dto";
+import { ProductoController } from "@modules/producto/producto.controller";
+import { ProductoService } from "@modules/producto/producto.service";
+import { CreateProductoDto } from "@modules/producto/dto/create-producto.dto";
+import { UpdateProductoDto } from "@modules/producto/dto/update-producto.dto";
 
 describe("ProductoController", () => {
   let controller: ProductoController;

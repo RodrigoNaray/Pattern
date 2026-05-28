@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus } from '@nestjs/common';
-import { ConfiguracionTiendaController } from './configuracion-tienda.controller';
-import { ConfiguracionTiendaService } from './configuracion-tienda.service';
-import { ConfigurarTiendaDto } from './dto/configurar-tienda.dto';
+import { ConfiguracionTiendaController } from '@modules/configuracion/configuracion-tienda.controller';
+import { ConfiguracionTiendaService } from '@modules/configuracion/configuracion-tienda.service';
+import { ConfigurarTiendaDto } from '@modules/configuracion/dto/configurar-tienda.dto';
 
 describe('ConfiguracionTiendaController', () => {
   let controller: ConfiguracionTiendaController;

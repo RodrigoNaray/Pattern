@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@common/config/database/prisma.service';
-import { PedidoService } from '../pedido.service';
+import { PedidoService } from '@modules/pedido/pedido.service';
 
 describe('PedidoService - obtenerInstruccionesPago', () => {
   let service: PedidoService;

@@ -1,8 +1,8 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ProductoService } from "../producto.service";
+import { ProductoService } from "@modules/producto/producto.service";
 import { PrismaService } from "@common/config/database/prisma.service";
-import { PublicarProductoDto } from "../dto/publicar-producto.dto";
+import { PublicarProductoDto } from "@modules/producto/dto/publicar-producto.dto";
 
 interface MockPrismaProducto {
   create: jest.Mock;

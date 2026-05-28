@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CarritoService } from './carrito.service';
+import { CarritoService } from '@modules/carrito/carrito.service';
 import { PrismaService } from '@common/config/database/prisma.service';
-import { ValidarCarritoInputDto } from './dto/validar-carrito-input.dto';
-import { AgregarCarritoDto } from './dto/agregar-al-carrito.dto';
-import { ActualizarCarritoDto } from './dto/actualizar-carrito.dto';
+import { ValidarCarritoInputDto } from '@modules/carrito/dto/validar-carrito-input.dto';
+import { AgregarCarritoDto } from '@modules/carrito/dto/agregar-al-carrito.dto';
+import { ActualizarCarritoDto } from '@modules/carrito/dto/actualizar-carrito.dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('CarritoService', () => {

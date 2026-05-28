@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PedidoService } from './pedido.service';
+import { PedidoService } from '@modules/pedido/pedido.service';
 import { PrismaService } from '@common/config/database/prisma.service';
-import { CreatePedidoDto } from './dto/create-pedido.dto';
+import { CreatePedidoDto } from '@modules/pedido/dto/create-pedido.dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('PedidoService', () => {
@@ -287,12 +287,13 @@ describe('PedidoService', () => {
 
       const result = await service.listarPendientes();
 
-      expect(result).toHaveLength(2);
-      expect(result.at(0)!.codigo).toBe('PED-AAA111');
-      expect(result.at(1)!.codigo).toBe('PED-BBB222');
-      expect(result.at(0)!.itemsCount).toBe(1);
-      expect(result.at(1)!.itemsCount).toBe(2);
-      expect(result.at(0)!.totalCentavos).toBe(15000);
+      const pedidos = result.pedidos as any;
+      expect(pedidos).toHaveLength(2);
+      expect(pedidos[0].codigo).toBe('PED-AAA111');
+      expect(pedidos[1].codigo).toBe('PED-BBB222');
+      expect(pedidos[0].itemsCount).toBe(1);
+      expect(pedidos[1].itemsCount).toBe(2);
+      expect(pedidos[0].totalCentavos).toBe(15000);
       expect(prisma.pedido.findMany).toHaveBeenCalledWith({
         where: { estado: 'PENDIENTE_PAGO' },
         orderBy: { creadoEn: 'desc' },
@@ -309,7 +310,7 @@ describe('PedidoService', () => {
 
       const result = await service.listarPendientes();
 
-      expect(result).toEqual([]);
+      expect(result.pedidos).toEqual([]);
     });
   });
 

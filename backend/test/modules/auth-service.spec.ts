@@ -1,7 +1,7 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { AuthService } from '../auth.service';
+import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@common/config/database/prisma.service';
 
 jest.mock('bcrypt', () => ({
