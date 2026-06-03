@@ -2,6 +2,9 @@ packages:
   - backend
   - frontend
 
+allowBuilds:
+  esbuild: true
+
 onlyBuiltDependencies:
   - '@nestjs/core'
   - '@prisma/client'

@@ -9,3 +9,8 @@ documentacion
 .next
 skills-lock.json
 AGENTS.md
+coverage/
+*.log
+.DS_Store
+next-env.d.ts
+uploads/

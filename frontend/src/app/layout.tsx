@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Lora, Inter } from 'next/font/google';
 import './globals.css';
-import { CarritoProvider } from '@/components/carrito/carrito-context';
+import { ClientLayout } from '@/components/layout/ClientLayout';
 
 const lora = Lora({
   subsets: ['latin'],
@@ -33,9 +33,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${lora.variable} ${inter.variable}`}>
       <body>
-        <CarritoProvider>
-          {children}
-        </CarritoProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

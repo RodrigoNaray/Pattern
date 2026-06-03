@@ -1,10 +1,10 @@
 import { Notificacion, NotificacionDetalle, NotificacionFiltro, ListarNotificacionesQuery } from '@/types/notificacion';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 async function fetchNotificaciones(filtro?: NotificacionFiltro): Promise<Notificacion[]> {
   const params = filtro ? `?filtro=${filtro}` : '';
-  const response = await fetch(`${API_BASE_URL}/api/notificaciones/${params}`);
+  const response = await fetch(`${API_BASE_URL}/admin/notificaciones/${params}`);
 
   if (!response.ok) {
     throw new Error('Failed to fetch notificaciones');
@@ -14,7 +14,7 @@ async function fetchNotificaciones(filtro?: NotificacionFiltro): Promise<Notific
 }
 
 async function fetchNotificacionDetalle(id: string): Promise<NotificacionDetalle> {
-  const response = await fetch(`${API_BASE_URL}/api/notificaciones/${id}/detalle`);
+  const response = await fetch(`${API_BASE_URL}/admin/notificaciones/${id}/detalle`);
 
   if (!response.ok) {
     throw new Error('Failed to fetch notificacion detalle');
@@ -28,7 +28,7 @@ async function fetchMarcarComoLeida(id: string): Promise<{
   leida: boolean;
   creadoEn: Date;
 }> {
-  const response = await fetch(`${API_BASE_URL}/api/notificaciones/${id}/leida`, {
+  const response = await fetch(`${API_BASE_URL}/admin/notificaciones/${id}/leida`, {
     method: 'PATCH',
   });
 

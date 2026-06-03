@@ -6,19 +6,21 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { NotificacionService } from './notificacion.service';
 import { ListarNotificacionesDto } from './dto/listar-notificaciones.dto';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('notificaciones')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('admin/notificaciones')
 export class NotificacionController {
   constructor(private readonly notificacionService: NotificacionService) {}

@@ -1,9 +1,7 @@
 /**
- * Pagina de detalle de producto (cliente).
- * Muestra galeria, info del producto y formulario de agregar al carrito.
+ * Pagina de detalle de producto.
+ * Server component con client boundary para CarritoAgregar.
  */
-
-'use client';
 
 import type { Metadata } from 'next';
 import { use } from 'react';
@@ -128,10 +126,9 @@ function DetalleProductoInfo({
   stock: number;
   productoId: string;
 }) {
-  const precioFormateado = new Intl.NumberFormat('es-AR', {
+  const precioFormateado = new Intl.NumberFormat('es-UY', {
     style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0,
+    currency: 'UYU',
   }).format(precioCentavos / 100);
 
   return (

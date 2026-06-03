@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Contexto global del carrito de compras.
  * Persiste el estado en sessionStorage y sincroniza con el backend.

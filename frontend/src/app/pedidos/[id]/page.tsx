@@ -78,7 +78,7 @@ export default async function PaginaInstruccionesPago({ params }: PaginaInstrucc
           <h2 className={styles.seccionTitulo}>Referencia del pedido</h2>
 
           <div className={styles.refenciaBox}>
-            <span className={styles.refenciaEtiqueta}>NÂº de pedido</span>
+            <span className={styles.refenciaEtiqueta}>Nº de pedido</span>
             <span className={styles.refenciaValor}>{datos.numeroPedido}</span>
           </div>
 
@@ -101,13 +101,13 @@ export default async function PaginaInstruccionesPago({ params }: PaginaInstrucc
           </a>
 
           <p className={styles.whatsappAyuda}>
-            HacÃ© clic en el botÃ³n para abrir WhatsApp con tu mensaje prellenado.
+            Hace clic en el boton para abrir WhatsApp con tu mensaje prellenado.
           </p>
         </section>
 
         <aside className={styles.notasAside}>
           <p className={styles.notasTexto}>
-            Tu pedido se encuentra en estado <strong>{datos.estadoPedido}</strong>. Se confirmarÃ¡ una vez que verifiquemos el pago.
+            Tu pedido se encuentra en estado <strong>{datos.estadoPedido}</strong>. Se confirmara una vez que verifiquemos el pago.
           </p>
         </aside>
       </article>

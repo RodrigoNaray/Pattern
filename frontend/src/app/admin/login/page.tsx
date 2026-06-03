@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Login.module.css';
 import { login } from '../../../services/auth.service';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/admin';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push('/admin/dashboard');
+      router.push(redirectTo);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error de red');
     } finally {
@@ -68,5 +70,13 @@ export default function LoginPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className={styles.container}><main className={styles.main}><p>Cargando...</p></main></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

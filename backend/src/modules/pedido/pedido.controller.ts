@@ -23,6 +23,22 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 export class PedidoController {
   constructor(private readonly pedidoService: PedidoService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('list-pendientes')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Listar pedidos pendientes de pago (admin)' })
+  @ApiResponse({ status: 200, description: 'Pedidos pendientes obtenidos' })
+  async listarPendientes(
+    @Query('pagina') pagina?: number,
+    @Query('tamano') tamano?: number,
+  ) {
+    const filtros: { pagina?: number; tamano?: number } = {};
+    if (pagina != null) filtros.pagina = pagina;
+    if (tamano != null) filtros.tamano = tamano;
+    return this.pedidoService.listarPendientes(filtros);
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Crear un nuevo pedido (público)' })
@@ -60,22 +76,6 @@ export class PedidoController {
   @ApiResponse({ status: 404, description: 'Pedido o producto no encontrado' })
   async confirmarPago(@Param('id') id: string) {
     return this.pedidoService.confirmarPago(id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @Get('list-pendientes')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Listar pedidos pendientes de pago (admin)' })
-  @ApiResponse({ status: 200, description: 'Pedidos pendientes obtenidos' })
-  async listarPendientes(
-    @Query('pagina') pagina?: number,
-    @Query('tamano') tamano?: number,
-  ) {
-    const filtros: { pagina?: number; tamano?: number } = {};
-    if (pagina != null) filtros.pagina = pagina;
-    if (tamano != null) filtros.tamano = tamano;
-    return this.pedidoService.listarPendientes(filtros);
   }
 
   @UseGuards(JwtAuthGuard)

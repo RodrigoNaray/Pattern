@@ -6,34 +6,30 @@ import { motion } from 'framer-motion';
 import { CarritoItemCard } from '@/components/carrito/CarritoItemCard';
 import { CarritoTotal } from '@/components/carrito/CarritoTotal';
 import { CarritoEmpty } from '@/components/carrito/CarritoEmpty';
-import {
-  obtenerDelStorage,
-  guardarEnStorage,
-  validarCarrito,
-  type CarritoItem,
-} from '@/services/carrito.service';
+import { useCarrito } from '@/components/carrito/carrito-context';
+import { validarCarrito } from '@/services/carrito.service';
 import styles from './CarritoPage.module.css';
 import { motionConfig, fadeInUp } from '@/lib/animations';
 
+interface ItemConStock {
+  productoId: string;
+  nombre: string;
+  talle: string;
+  precioCentavos: number;
+  cantidad: number;
+  subtotalCentavos: number;
+  stockDisponible: number;
+  stockInsuficiente?: boolean;
+}
+
 export default function CarritoPage() {
   const router = useRouter();
-  const [items, setItems] = useState<CarritoItem[]>([]);
-  const [validatedItems, setValidatedItems] = useState<
-    (CarritoItem & { stockDisponible: number; stockInsuficiente?: boolean })[]
-  >([]);
+  const { items, totalCentavos: contextoTotal, actualizarCantidad: actualizarEnContexto, eliminarItem: eliminarEnContexto } = useCarrito();
+  const [validatedItems, setValidatedItems] = useState<ItemConStock[]>([]);
   const [totalCentavos, setTotalCentavos] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hayStockInsuficiente, setHayStockInsuficiente] = useState(false);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const carrito = obtenerDelStorage();
-    if (carrito.length > 0) {
-      setItems(carrito);
-      setVisible(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (items.length > 0) {
@@ -45,7 +41,16 @@ export default function CarritoPage() {
     setLoading(true);
     setError(null);
 
-    const resultado = await validarCarrito(items);
+    const itemsParaApi = items.map((i) => ({
+      productoId: i.productoId,
+      nombre: i.nombre ?? '',
+      talle: i.talle,
+      precioCentavos: i.precioCentavos ?? 0,
+      cantidad: i.cantidad,
+      subtotalCentavos: i.precioCentavos ? i.precioCentavos * i.cantidad : 0,
+    }));
+
+    const resultado = await validarCarrito(itemsParaApi);
 
     if (resultado.ok) {
       setValidatedItems(
@@ -69,33 +74,25 @@ export default function CarritoPage() {
     setLoading(false);
   }, [items]);
 
-  const actualizarCantidad = useCallback(
+  const manejarActualizarCantidad = useCallback(
     (productoId: string, nuevaCantidad: number) => {
-      const actualizados = items.map((item) =>
-        item.productoId === productoId
-          ? { ...item, cantidad: nuevaCantidad, subtotalCentavos: item.precioCentavos * nuevaCantidad }
-          : item,
-      );
-      setItems(actualizados);
-      guardarEnStorage(actualizados);
+      actualizarEnContexto(productoId, nuevaCantidad);
     },
-    [items],
+    [actualizarEnContexto],
   );
 
-  const eliminarItem = useCallback(
+  const manejarEliminarItem = useCallback(
     (productoId: string) => {
-      const actualizados = items.filter((item) => item.productoId !== productoId);
-      setItems(actualizados);
-      guardarEnStorage(actualizados);
+      eliminarEnContexto(productoId);
     },
-    [items],
+    [eliminarEnContexto],
   );
 
   const crearPedido = useCallback(() => {
-    router.push('/checkout');
+    router.push('/carrito/checkout');
   }, [router]);
 
-  if (items.length === 0 && validatedItems.length === 0) {
+  if (items.length === 0) {
     return (
       <main className={styles.paginaPrincipal}>
         <CarritoEmpty />
@@ -109,7 +106,7 @@ export default function CarritoPage() {
         <motion.h1
           className={styles.titulo}
           initial="hidden"
-          animate={visible ? 'visible' : 'hidden'}
+          animate="visible"
           variants={fadeInUp}
           transition={motionConfig}
         >
@@ -151,8 +148,8 @@ export default function CarritoPage() {
                       cantidad: item.cantidad,
                       subtotalCentavos: item.subtotalCentavos,
                     }}
-                    onUpdateQuantity={(cantidad) => actualizarCantidad(item.productoId, cantidad)}
-                    onRemove={() => eliminarItem(item.productoId)}
+                    onUpdateQuantity={(cantidad) => manejarActualizarCantidad(item.productoId, cantidad)}
+                    onRemove={() => manejarEliminarItem(item.productoId)}
                     stockDisponible={item.stockDisponible}
                   />
                 </motion.div>

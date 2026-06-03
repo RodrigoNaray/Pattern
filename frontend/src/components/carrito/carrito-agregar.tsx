@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Componente CarritoAgregar - CU-03: Agregar producto al carrito
  * 
