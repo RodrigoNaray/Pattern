@@ -1,44 +1,42 @@
-/* Pagina de productos - Estilos del catalogo */
-
-.titulo {
-  font-family: 'Lora', serif;
-  font-weight: 600;
-  font-size: 2rem;
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-lg);
-}
-
-.grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-lg);
-}
-
-.vacio {
-  font-family: 'Inter', sans-serif;
-  color: var(--color-text-secondary);
-}
-
-.estadoVacioConFiltros {
+.contenedor {
+  min-height: 60vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-lg);
-  padding: var(--space-2xl) var(--space-lg);
+  justify-content: center;
+  padding: var(--space-xl) var(--space-lg);
+  background-color: var(--color-bg-primary);
+}
+
+.contenido {
+  max-width: 480px;
   text-align: center;
 }
 
-.textoVacio {
+.codigo {
+  font-family: var(--font-heading);
+  font-size: 6rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-accent-terracotta);
+  margin-bottom: var(--space-md);
+}
+
+.titulo {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.mensaje {
   font-family: var(--font-body);
   font-size: var(--font-size-md);
   color: var(--color-text-secondary);
-  max-width: 360px;
+  margin-bottom: var(--space-xl);
 }
 
-.accionesVacias {
+.acciones {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
@@ -55,7 +53,7 @@
   font-weight: 500;
   font-size: var(--font-size-sm);
   border-radius: var(--border-radius-sm);
-  text-decoration: none;
+  cursor: pointer;
   transition: all 150ms ease-out;
   min-width: 200px;
 }
@@ -82,7 +80,7 @@
 }
 
 @media (min-width: 640px) {
-  .accionesVacias {
+  .acciones {
     flex-direction: row;
     justify-content: center;
   }

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { obtenerProductosActivos } from '@/services/producto.service';
 import TarjetaProducto from '@/components/client/tarjeta-producto';
 import Loading from './loading';
@@ -30,12 +31,29 @@ export default async function ProductosPage({
   }
 
   const { productos } = result.value;
+  const hayFiltrosActivos = Boolean(params.talle);
 
   if (productos.length === 0) {
     return (
       <main>
         <h1 className={styles.titulo}>Productos</h1>
-        <p className={styles.vacio}>No se encontraron productos.</p>
+        {hayFiltrosActivos ? (
+          <div className={styles.estadoVacioConFiltros}>
+            <p className={styles.textoVacio}>
+              No encontramos productos con esos filtros.
+            </p>
+            <div className={styles.accionesVacias}>
+              <Link href="/productos" className={styles.botonPrimario}>
+                Quitar filtros
+              </Link>
+              <Link href="/productos" className={styles.botonSecundario}>
+                Ver todo el catalogo
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <p className={styles.vacio}>No se encontraron productos.</p>
+        )}
       </main>
     );
   }
@@ -53,6 +71,7 @@ export default async function ProductosPage({
                 talle={producto.talle}
                 precioCentavos={producto.precioCentavos}
                 imagenes={producto.imagenes}
+                stock={producto.stock}
               />
             </li>
           ))}

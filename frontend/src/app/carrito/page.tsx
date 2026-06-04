@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CarritoItemCard } from '@/components/carrito/CarritoItemCard';
@@ -112,6 +113,10 @@ export default function CarritoPage() {
         >
           Tu carrito
         </motion.h1>
+
+        <Link href="/productos" className={styles.continuarComprando}>
+          &larr; Continuar comprando
+        </Link>
 
         {loading && <span className={styles.cargando}>Validando productos...</span>}
 

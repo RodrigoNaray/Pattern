@@ -9,6 +9,7 @@
   transition: border-color var(--transition-default);
   text-decoration: none;
   color: var(--color-text-primary);
+  position: relative;
 }
 
 .container:hover {
@@ -24,6 +25,30 @@
 .imagen {
   object-fit: cover;
   background-color: var(--color-bg-tertiary);
+}
+
+.badgeAgotado,
+.badgeStockBajo {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--border-radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badgeAgotado {
+  color: var(--color-bg-primary);
+  background-color: var(--color-error);
+}
+
+.badgeStockBajo {
+  color: var(--color-text-primary);
+  background-color: var(--color-warning);
 }
 
 .contenido {

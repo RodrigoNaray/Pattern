@@ -13,7 +13,8 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <Link href="/" className={styles.logo}>
-          Tienda de Ropa
+          <span className={styles.logoMarca}>T</span>
+          <span className={styles.logoTexto}>Tienda de Ropa</span>
         </Link>
         <nav className={styles.nav}>
           <Link href="/" className={styles.link}>

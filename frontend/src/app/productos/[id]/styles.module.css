@@ -183,3 +183,29 @@
   color: var(--color-text-muted);
   font-style: italic;
 }
+
+.stock {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.stockBajo {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-warning);
+  margin: 0;
+}
+
+.stockAgotado {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-error);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}

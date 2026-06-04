@@ -136,6 +136,13 @@ function DetalleProductoInfo({
       <h1 className={styles.nombre}>{nombre}</h1>
       <span className={styles.talle}>Talle: {talle}</span>
       <p className={styles.precio}>{precioFormateado}</p>
+      <p className={stock === 0 ? styles.stockAgotado : stock <= 3 ? styles.stockBajo : styles.stock}>
+        {stock === 0
+          ? 'Agotado'
+          : stock <= 3
+            ? `Ultimas ${stock} unidades`
+            : `${stock} unidades disponibles`}
+      </p>
       <hr className={styles.separador} />
       <p className={styles.descripcion}>
         {descripcion || 'Sin descripcion disponible.'}

@@ -1,0 +1,91 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(26, 26, 26, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-lg);
+}
+
+.modal {
+  background-color: var(--color-bg-primary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  max-width: 440px;
+  width: 100%;
+  padding: var(--space-xl);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.titulo {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.mensaje {
+  font-family: var(--font-body);
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-xl);
+}
+
+.acciones {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-sm);
+}
+
+.botonCancelar,
+.botonConfirmar,
+.botonPeligroso {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.botonCancelar {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.botonCancelar:hover {
+  border-color: var(--color-border-hover);
+}
+
+.botonConfirmar {
+  background-color: var(--color-accent-green);
+  color: var(--color-bg-primary);
+  border: 1px solid var(--color-accent-green);
+}
+
+.botonConfirmar:hover {
+  opacity: 0.9;
+}
+
+.botonPeligroso {
+  background-color: var(--color-error);
+  color: var(--color-bg-primary);
+  border: 1px solid var(--color-error);
+}
+
+.botonPeligroso:hover {
+  opacity: 0.9;
+}
+
+@media (min-width: 640px) {
+  .acciones {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}

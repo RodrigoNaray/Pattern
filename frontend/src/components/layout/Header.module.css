@@ -16,11 +16,32 @@
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+}
+
+.logoMarca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-accent-terracotta);
+  color: var(--color-bg-primary);
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.logoTexto {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  text-decoration: none;
 }
 
 .nav {

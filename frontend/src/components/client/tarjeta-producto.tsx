@@ -9,10 +9,15 @@ interface TarjetaProductoProps {
   talle: string;
   precioCentavos: number;
   imagenes: string[];
+  stock: number;
 }
 
-export default function TarjetaProducto({ id, nombre, talle, precioCentavos, imagenes }: TarjetaProductoProps) {
+const STOCK_BAJO_UMBRAL = 3;
+
+export default function TarjetaProducto({ id, nombre, talle, precioCentavos, imagenes, stock }: TarjetaProductoProps) {
   const precioFormateado = formatearPrecio(precioCentavos);
+  const agotado = stock === 0;
+  const stockBajo = !agotado && stock <= STOCK_BAJO_UMBRAL;
 
   return (
     <Link href={`/productos/${id}`} className={styles.container}>
@@ -25,6 +30,16 @@ export default function TarjetaProducto({ id, nombre, talle, precioCentavos, ima
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           loading="eager"
         />
+        {agotado && (
+          <span className={styles.badgeAgotado} aria-label="Producto agotado">
+            Agotado
+          </span>
+        )}
+        {stockBajo && (
+          <span className={styles.badgeStockBajo} aria-label={`Ultimas ${stock} unidades`}>
+            Ultimas {stock}
+          </span>
+        )}
       </div>
       <div className={styles.contenido}>
         <h3 className={styles.nombre}>{nombre}</h3>

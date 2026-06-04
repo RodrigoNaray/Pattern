@@ -1,12 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { eliminarToken } from '@/services/auth.service';
+import ModalConfirmacion from '@/components/admin/ModalConfirmacion';
 import styles from './AdminHeader.module.css';
 
 export function AdminHeader() {
   const router = useRouter();
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
   function handleLogout() {
     eliminarToken();
@@ -17,7 +20,8 @@ export function AdminHeader() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <Link href="/admin" className={styles.logo}>
-          Panel Admin
+          <span className={styles.logoMarca}>T</span>
+          <span className={styles.logoTexto}>Tienda Admin</span>
         </Link>
         <nav className={styles.nav}>
           <Link href="/admin" className={styles.link}>
@@ -41,12 +45,23 @@ export function AdminHeader() {
           <button
             type="button"
             className={styles.logoutButton}
-            onClick={handleLogout}
+            onClick={() => setMostrarConfirmacion(true)}
           >
             Cerrar sesion
           </button>
         </nav>
       </div>
+
+      <ModalConfirmacion
+        open={mostrarConfirmacion}
+        titulo="Cerrar sesion"
+        mensaje="¿Estas seguro que queres cerrar tu sesion? Tendras que volver a ingresar tus credenciales."
+        textoConfirmar="Si, cerrar sesion"
+        textoCancelar="Cancelar"
+        peligroso={false}
+        onConfirmar={handleLogout}
+        onCancelar={() => setMostrarConfirmacion(false)}
+      />
     </header>
   );
 }
