@@ -42,6 +42,9 @@ export function AdminHeader() {
           <Link href="/admin/administradores" className={styles.link}>
             Administradores
           </Link>
+          <Link href="/admin/cuenta" className={styles.link}>
+            Mi cuenta
+          </Link>
           <button
             type="button"
             className={styles.logoutButton}

@@ -49,3 +49,26 @@ export function eliminarToken(): void {
 export function estaAutenticado(): boolean {
   return obtenerToken() !== null;
 }
+
+export async function cambiarPassword(payload: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<{ mensaje: string }> {
+  const token = obtenerToken();
+  const response = await fetch(`${API_BASE_URL}/auth/cambiar-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    const mensaje = (data as { message?: string }).message ?? 'Error al cambiar la contraseña';
+    throw new Error(mensaje);
+  }
+
+  return response.json();
+}

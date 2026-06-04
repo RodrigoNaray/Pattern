@@ -139,6 +139,12 @@ describe('AuthService', () => {
       ).rejects.toThrow('El email ya está registrado');
     });
 
+    it('debe lanzar error cuando password tiene menos de 8 caracteres', async () => {
+      await expect(
+        service.registrarAdmin('Test', 'new@test.com', 'short'),
+      ).rejects.toThrow('La contraseña debe tener al menos 8 caracteres');
+    });
+
     it('debe crear un admin exitosamente cuando el email no existe', async () => {
       (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue(
         null,
@@ -167,6 +173,67 @@ describe('AuthService', () => {
           }),
         }),
       );
+    });
+  });
+
+  describe('cambiarPassword', () => {
+    it('debe lanzar error cuando la nueva contraseña tiene menos de 8 caracteres', async () => {
+      await expect(
+        service.cambiarPassword('admin-1', 'current123', 'short'),
+      ).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.cambiarPassword('admin-1', 'current123', 'short'),
+      ).rejects.toThrow('La nueva contraseña debe tener al menos 8 caracteres');
+    });
+
+    it('debe lanzar error cuando el administrador no existe', async () => {
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(
+        service.cambiarPassword('inexistente', 'current123', 'newPassword123'),
+      ).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.cambiarPassword('inexistente', 'current123', 'newPassword123'),
+      ).rejects.toThrow('Administrador no encontrado');
+    });
+
+    it('debe lanzar error cuando la contraseña actual es incorrecta', async () => {
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue({
+        id: 'admin-1',
+        email: 'test@test.com',
+        claveHash: 'hashed-correct',
+        nombre: 'Test',
+      });
+      (bcryptMock.compare as jest.Mock).mockResolvedValue(false);
+
+      await expect(
+        service.cambiarPassword('admin-1', 'wrong-current', 'newPassword123'),
+      ).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.cambiarPassword('admin-1', 'wrong-current', 'newPassword123'),
+      ).rejects.toThrow('La contraseña actual es incorrecta');
+    });
+
+    it('debe actualizar la contraseña cuando la actual es correcta', async () => {
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue({
+        id: 'admin-1',
+        email: 'test@test.com',
+        claveHash: 'hashed-current',
+        nombre: 'Test',
+      });
+      (bcryptMock.compare as jest.Mock).mockResolvedValue(true);
+      (bcryptMock.hash as jest.Mock).mockResolvedValue('hashed-new');
+      (prismaMock.administrador!.update as jest.Mock).mockResolvedValue({});
+
+      const result = await service.cambiarPassword('admin-1', 'current123', 'newPassword123');
+
+      expect(result).toEqual({ mensaje: 'Contraseña actualizada exitosamente' });
+      expect(bcryptMock.compare).toHaveBeenCalledWith('current123', 'hashed-current');
+      expect(bcryptMock.hash).toHaveBeenCalledWith('newPassword123', 12);
+      expect(prismaMock.administrador!.update).toHaveBeenCalledWith({
+        where: { id: 'admin-1' },
+        data: { claveHash: 'hashed-new' },
+      });
     });
   });
 });

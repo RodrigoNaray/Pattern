@@ -22,6 +22,9 @@ export interface AdminBasic {
   nombre: string;
 }
 
+const SALT_ROUNDS = 12;
+const MIN_PASSWORD_LENGTH = 8;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,6 +32,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
+
+  private async hashearPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, SALT_ROUNDS);
+  }
 
   async validarAdmin(email: string, password: string): Promise<AuthResponse> {
     if (!email || !password) {
@@ -64,10 +71,42 @@ export class AuthService {
       throw new Error('El email ya está registrado');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    if (!password || password.length < MIN_PASSWORD_LENGTH) {
+      throw new Error('La contraseña debe tener al menos 8 caracteres');
+    }
+
+    const hashedPassword = await this.hashearPassword(password);
 
     return this.prisma.administrador.create({
       data: { nombre, email, claveHash: hashedPassword },
     });
+  }
+
+  async cambiarPassword(
+    adminId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ mensaje: string }> {
+    if (!newPassword || newPassword.length < MIN_PASSWORD_LENGTH) {
+      throw new UnauthorizedException('La nueva contraseña debe tener al menos 8 caracteres');
+    }
+
+    const admin = await this.prisma.administrador.findUnique({ where: { id: adminId } });
+    if (!admin) {
+      throw new UnauthorizedException('Administrador no encontrado');
+    }
+
+    const passwordMatch = await bcrypt.compare(currentPassword, admin.claveHash);
+    if (!passwordMatch) {
+      throw new UnauthorizedException('La contraseña actual es incorrecta');
+    }
+
+    const newHash = await this.hashearPassword(newPassword);
+    await this.prisma.administrador.update({
+      where: { id: adminId },
+      data: { claveHash: newHash },
+    });
+
+    return { mensaje: 'Contraseña actualizada exitosamente' };
   }
 }
