@@ -9,10 +9,8 @@ export function CarritoEmpty() {
       <p className={styles.carritoEmptyTexto}>
         Agreg&aacute; productos desde el cat&aacute;logo para comenzar tu pedido.
       </p>
-      <Link href="/productos" legacyBehavior>
-        <a className={styles.botonCatalogo}>
-          Ir al cat&aacute;logo
-        </a>
+      <Link href="/productos" className={styles.botonCatalogo}>
+        Ir al cat&aacute;logo
       </Link>
     </div>
   );
