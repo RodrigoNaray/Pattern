@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { pedidoAdminService } from '@/services/pedido-admin.service';
 import ModalConfirmacion from '@/components/admin/ModalConfirmacion';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import styles from './PedidoDetalle.module.css';
 
 interface PedidoDetalle {
@@ -127,6 +128,13 @@ export default function AdminPedidoDetallePage() {
 
   return (
     <main className={styles.container}>
+      <Breadcrumbs
+        items={[
+          { label: 'Admin', href: '/admin' },
+          { label: 'Pedidos', href: '/admin/pedidos' },
+          { label: pedido.codigo },
+        ]}
+      />
       <Link href="/admin/pedidos" className={styles.backLink}>&larr; Volver a pedidos</Link>
 
       <div className={styles.header}>

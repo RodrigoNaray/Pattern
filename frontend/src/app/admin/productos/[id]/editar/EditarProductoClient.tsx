@@ -10,6 +10,7 @@ import {
   type ActualizarProductoPayload,
 } from '../../../../../services/admin-producto.service';
 import styles from './EditarProductoClient.module.css';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import { fadeInUp, motionConfig } from '../../../../../lib/animations';
 
 const TALLES_VALIDOS = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '38', '40', '42', '44', '46'] as const;
@@ -175,6 +176,13 @@ export default function EditarProductoClient({ productoId }: Props) {
 
   return (
     <section className={styles.pagina}>
+      <Breadcrumbs
+        items={[
+          { label: 'Admin', href: '/admin' },
+          { label: 'Productos', href: '/admin/productos' },
+          { label: `Editar ${producto.nombre}` },
+        ]}
+      />
       <div className={styles.cabecera}>
         <h1 className={styles.tituloPagina}>Editar producto</h1>
         <button

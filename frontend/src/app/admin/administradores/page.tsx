@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModalConfirmacion from '@/components/admin/ModalConfirmacion';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import styles from './AdminAdmins.module.css';
 import { listarAdministradores, crearAdministrador, eliminarAdministrador } from '@/services/administrador.service';
 import type { Administrador } from '@/services/administrador.service';
@@ -90,6 +91,12 @@ export default function AdminAdministradoresPage() {
 
   return (
     <section className={styles.pagina}>
+      <Breadcrumbs
+        items={[
+          { label: 'Admin', href: '/admin' },
+          { label: 'Administradores' },
+        ]}
+      />
       <div className={styles.cabecera}>
         <h1 className={styles.tituloPagina}>Gestión de Administradores</h1>
         <button

@@ -6,6 +6,7 @@
 import type { Metadata } from 'next';
 import { use } from 'react';
 import { obtenerProductoPorId } from '@/services/producto.service';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import styles from './styles.module.css';
 import CarritoAgregar from '@/components/carrito/carrito-agregar';
 
@@ -64,6 +65,13 @@ export default function ProductoDetallePage({ params }: Props) {
 
   return (
     <main className={styles.contenedor}>
+      <Breadcrumbs
+        items={[
+          { label: 'Inicio', href: '/' },
+          { label: 'Productos', href: '/productos' },
+          { label: producto.nombre },
+        ]}
+      />
       <section className={styles.galeria}>
         <DetalleProductoImagen
           nombre={producto.nombre}
