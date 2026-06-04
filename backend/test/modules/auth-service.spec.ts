@@ -236,4 +236,47 @@ describe('AuthService', () => {
       });
     });
   });
+
+  describe('resetPassword', () => {
+    it('debe lanzar error cuando la nueva contraseña tiene menos de 8 caracteres', async () => {
+      await expect(
+        service.resetPassword('admin-1', 'short'),
+      ).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.resetPassword('admin-1', 'short'),
+      ).rejects.toThrow('La nueva contraseña debe tener al menos 8 caracteres');
+    });
+
+    it('debe lanzar error cuando el administrador no existe', async () => {
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(
+        service.resetPassword('inexistente', 'newPassword123'),
+      ).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.resetPassword('inexistente', 'newPassword123'),
+      ).rejects.toThrow('Administrador no encontrado');
+    });
+
+    it('debe actualizar la contraseña sin pedir la actual', async () => {
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue({
+        id: 'admin-2',
+        email: 'other@test.com',
+        claveHash: 'hashed-old',
+        nombre: 'Other',
+      });
+      (bcryptMock.hash as jest.Mock).mockResolvedValue('hashed-new');
+      (prismaMock.administrador!.update as jest.Mock).mockResolvedValue({});
+
+      const result = await service.resetPassword('admin-2', 'newPassword123');
+
+      expect(result).toEqual({ mensaje: 'Contrasena reseteada exitosamente' });
+      expect(bcryptMock.compare).not.toHaveBeenCalled();
+      expect(bcryptMock.hash).toHaveBeenCalledWith('newPassword123', 12);
+      expect(prismaMock.administrador!.update).toHaveBeenCalledWith({
+        where: { id: 'admin-2' },
+        data: { claveHash: 'hashed-new' },
+      });
+    });
+  });
 });

@@ -35,6 +35,10 @@
   margin-bottom: var(--space-xl);
 }
 
+.contenido {
+  margin-bottom: var(--space-xl);
+}
+
 .acciones {
   display: flex;
   flex-direction: column-reverse;

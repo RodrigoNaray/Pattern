@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './ModalConfirmacion.module.css';
 
@@ -11,6 +11,7 @@ interface ModalConfirmacionProps {
   textoConfirmar?: string;
   textoCancelar?: string;
   peligroso?: boolean;
+  children?: ReactNode;
   onConfirmar: () => void | Promise<void>;
   onCancelar: () => void;
 }
@@ -22,6 +23,7 @@ export default function ModalConfirmacion({
   textoConfirmar = 'Confirmar',
   textoCancelar = 'Cancelar',
   peligroso = false,
+  children,
   onConfirmar,
   onCancelar,
 }: ModalConfirmacionProps) {
@@ -77,6 +79,7 @@ export default function ModalConfirmacion({
             <p id="modal-mensaje" className={styles.mensaje}>
               {mensaje}
             </p>
+            {children && <div className={styles.contenido}>{children}</div>}
             <div className={styles.acciones}>
               <button
                 ref={cancelarRef}

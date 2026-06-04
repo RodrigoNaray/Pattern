@@ -5,7 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ModalConfirmacion from '@/components/admin/ModalConfirmacion';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import styles from './AdminAdmins.module.css';
-import { listarAdministradores, crearAdministrador, eliminarAdministrador } from '@/services/administrador.service';
+import {
+  listarAdministradores,
+  crearAdministrador,
+  eliminarAdministrador,
+  resetearPassword,
+} from '@/services/administrador.service';
 import type { Administrador } from '@/services/administrador.service';
 
 const fadeInUp = {
@@ -26,6 +31,11 @@ export default function AdminAdministradoresPage() {
   const [eliminando, setEliminando] = useState<string | null>(null);
   const [adminEliminar, setAdminEliminar] = useState<Administrador | null>(null);
   const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
+
+  const [adminResetear, setAdminResetear] = useState<Administrador | null>(null);
+  const [nuevaPassword, setNuevaPassword] = useState('');
+  const [reseteando, setReseteando] = useState(false);
+  const [errorReset, setErrorReset] = useState<string | null>(null);
 
   const cargarAdmins = useCallback(async () => {
     setCargando(true);
@@ -87,6 +97,41 @@ export default function AdminAdministradoresPage() {
 
     setAdmins((prev) => prev.filter((a) => a.id !== adminEliminar.id));
     setExito('Administrador eliminado exitosamente');
+  };
+
+  const handleResetear = async () => {
+    if (!adminResetear) return;
+    if (!nuevaPassword || nuevaPassword.length < 8) {
+      setErrorReset('La contrasena debe tener al menos 8 caracteres');
+      return;
+    }
+    setReseteando(true);
+    setErrorReset(null);
+    const result = await resetearPassword(adminResetear.id, nuevaPassword);
+    setReseteando(false);
+
+    if (!result.ok) {
+      setErrorReset(result.error.message);
+      return;
+    }
+
+    setExito(
+      `Contrasena de "${adminResetear.nombre}" reseteada. Comunicale la nueva contrasena por un canal seguro.`,
+    );
+    setAdminResetear(null);
+    setNuevaPassword('');
+  };
+
+  const abrirResetear = (admin: Administrador) => {
+    setAdminResetear(admin);
+    setNuevaPassword('');
+    setErrorReset(null);
+  };
+
+  const cerrarResetear = () => {
+    setAdminResetear(null);
+    setNuevaPassword('');
+    setErrorReset(null);
   };
 
   return (
@@ -247,6 +292,14 @@ export default function AdminAdministradoresPage() {
                   <div className={styles.acciones}>
                     <button
                       type="button"
+                      className={styles.botonResetear}
+                      onClick={() => abrirResetear(admin)}
+                      aria-label={`Resetear contrasena de ${admin.nombre}`}
+                    >
+                      Resetear
+                    </button>
+                    <button
+                      type="button"
                       className={styles.botonEliminar}
                       onClick={() => setAdminEliminar(admin)}
                       aria-label={`Eliminar ${admin.nombre}`}
@@ -271,6 +324,35 @@ export default function AdminAdministradoresPage() {
         onConfirmar={() => void handleEliminar()}
         onCancelar={() => setAdminEliminar(null)}
       />
+
+      <ModalConfirmacion
+        open={Boolean(adminResetear)}
+        titulo="Resetear contrasena"
+        mensaje={`Ingresa la nueva contrasena para "${adminResetear?.nombre}". El administrador debera usarla en su proximo inicio de sesion.`}
+        textoConfirmar={reseteando ? 'Reseteando...' : 'Resetear contrasena'}
+        textoCancelar="Cancelar"
+        peligroso
+        onConfirmar={() => void handleResetear()}
+        onCancelar={cerrarResetear}
+      >
+        <div className={styles.campoModal}>
+          <label htmlFor="nuevaPassword" className={styles.label}>
+            Nueva contrasena
+          </label>
+          <input
+            id="nuevaPassword"
+            type="password"
+            className={styles.input}
+            value={nuevaPassword}
+            onChange={(e) => setNuevaPassword(e.target.value)}
+            minLength={8}
+            autoComplete="new-password"
+            placeholder="Minimo 8 caracteres"
+            disabled={reseteando}
+          />
+          {errorReset && <p className={styles.textoError}>{errorReset}</p>}
+        </div>
+      </ModalConfirmacion>
     </section>
   );
 }

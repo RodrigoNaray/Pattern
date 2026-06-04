@@ -18,6 +18,7 @@ import { AuthService, AuthResponse } from "../auth/auth.service";
 import { PrismaService } from "@common/config/database/prisma.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RegistrarAdminDto } from "../auth/dto/registrar-admin.dto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 import type { Request } from "express";
 import type { AdminJwtUser } from "../auth/strategies/jwt.strategy";
 
@@ -113,6 +114,30 @@ export class AdministradorController {
       data,
       select: { id: true, nombre: true, email: true, ultimoAccesoEn: true },
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post(":id/reset-password")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Resetear contrasena de otro administrador" })
+  @ApiResponse({ status: 200, description: "Contrasena reseteada" })
+  @ApiResponse({ status: 400, description: "No puedes resetear tu propia contrasena" })
+  @ApiResponse({ status: 401, description: "Nueva contrasena invalida" })
+  @ApiResponse({ status: 404, description: "Administrador no encontrado" })
+  async resetPassword(
+    @Param("id") id: string,
+    @Body() dto: ResetPasswordDto,
+    @Req() req: Request,
+  ) {
+    const usuario = req.user as AdminJwtUser;
+    if (usuario.id === id) {
+      throw new BadRequestException(
+        "No puedes resetear tu propia contrasena. Usa la opcion 'Mi cuenta' para cambiarla.",
+      );
+    }
+
+    return this.authService.resetPassword(id, dto.nuevaPassword);
   }
 
   @UseGuards(JwtAuthGuard)

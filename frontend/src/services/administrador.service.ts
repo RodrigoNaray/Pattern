@@ -31,3 +31,13 @@ export async function eliminarAdministrador(id: string): Promise<ApiResult<{ men
     method: 'DELETE',
   });
 }
+
+export async function resetearPassword(
+  id: string,
+  nuevaPassword: string,
+): Promise<ApiResult<{ mensaje: string }>> {
+  return apiFetch<{ mensaje: string }>(`/administradores/${id}/reset-password`, {
+    method: 'POST',
+    body: JSON.stringify({ nuevaPassword }),
+  });
+}

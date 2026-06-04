@@ -109,4 +109,26 @@ export class AuthService {
 
     return { mensaje: 'Contraseña actualizada exitosamente' };
   }
+
+  async resetPassword(
+    adminId: string,
+    nuevaPassword: string,
+  ): Promise<{ mensaje: string }> {
+    if (!nuevaPassword || nuevaPassword.length < MIN_PASSWORD_LENGTH) {
+      throw new UnauthorizedException('La nueva contraseña debe tener al menos 8 caracteres');
+    }
+
+    const admin = await this.prisma.administrador.findUnique({ where: { id: adminId } });
+    if (!admin) {
+      throw new UnauthorizedException('Administrador no encontrado');
+    }
+
+    const newHash = await this.hashearPassword(nuevaPassword);
+    await this.prisma.administrador.update({
+      where: { id: adminId },
+      data: { claveHash: newHash },
+    });
+
+    return { mensaje: 'Contrasena reseteada exitosamente' };
+  }
 }
