@@ -31,7 +31,7 @@ describe('NotificacionService', () => {
 
       expect(result).toEqual(mockNotificaciones);
       expect(prisma.notificacion.findMany).toHaveBeenCalledWith({
-        where: undefined,
+        where: {},
         orderBy: { creadoEn: 'desc' },
       });
     });

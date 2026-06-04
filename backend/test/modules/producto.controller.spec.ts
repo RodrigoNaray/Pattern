@@ -1,16 +1,32 @@
 import { NotFoundException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
-import { ProductoController } from "@modules/producto/producto.controller";
+import { AdminProductoController } from "@modules/producto/admin-producto.controller";
 import { ProductoService } from "@modules/producto/producto.service";
+import { ImagenService } from "@modules/producto/imagen.service";
 import { CreateProductoDto } from "@modules/producto/dto/create-producto.dto";
-import { UpdateProductoDto } from "@modules/producto/dto/update-producto.dto";
 
-describe("ProductoController", () => {
-  let controller: ProductoController;
+function makeProducto(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "prod-1",
+    nombre: "Remera Algodón",
+    descripcion: null,
+    talle: "M",
+    precioCentavos: 15000,
+    stock: 100,
+    imagenes: [] as string[],
+    activo: true,
+    creadoEn: new Date(),
+    actualizadoEn: new Date(),
+    ...overrides,
+  };
+}
+
+describe("AdminProductoController", () => {
+  let controller: AdminProductoController;
   let service: jest.Mocked<
     Pick<
       ProductoService,
-      "crear" | "listar" | "obtenerUno" | "actualizar" | "eliminar"
+      "crear" | "listar" | "obtenerUno" | "actualizarAdmin" | "eliminar"
     >
   >;
 
@@ -18,26 +34,35 @@ describe("ProductoController", () => {
     crear: jest.fn(),
     listar: jest.fn(),
     obtenerUno: jest.fn(),
-    actualizar: jest.fn(),
+    actualizarAdmin: jest.fn(),
+    eliminar: jest.fn(),
+  };
+
+  const mockImagenService = {
+    guardar: jest.fn(),
     eliminar: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ProductoController],
+      controllers: [AdminProductoController],
       providers: [
         {
           provide: ProductoService,
           useValue: mockService,
         },
+        {
+          provide: ImagenService,
+          useValue: mockImagenService,
+        },
       ],
     }).compile();
 
-    controller = module.get<ProductoController>(ProductoController);
+    controller = module.get<AdminProductoController>(AdminProductoController);
     service = mockService as jest.Mocked<
       Pick<
         ProductoService,
-        "crear" | "listar" | "obtenerUno" | "actualizar" | "eliminar"
+        "crear" | "listar" | "obtenerUno" | "actualizarAdmin" | "eliminar"
       >
     >;
   });
@@ -46,7 +71,7 @@ describe("ProductoController", () => {
     jest.clearAllMocks();
   });
 
-  describe("crear", () => {
+  describe("crearDraft", () => {
     it("deberia delegar la creacion al servicio", async () => {
       const dto: CreateProductoDto = {
         nombre: "Remera Algodón",
@@ -55,44 +80,20 @@ describe("ProductoController", () => {
         stock: 100,
       };
 
-      const productoCreado = {
-        id: "prod-1",
-        nombre: dto.nombre,
-        descripcion: null,
-        talle: dto.talle,
-        precioCentavos: BigInt(dto.precioCentavos),
-        stock: dto.stock,
-        imagenes: [],
-        activo: true,
-        creadoEn: new Date(),
-        actualizadoEn: new Date(),
-      };
+      const productoCreado = makeProducto({ precioCentavos: 15000 });
 
       service.crear.mockResolvedValue(productoCreado);
 
-      const result = await controller.crear(dto);
+      const result = await controller.crearDraft(dto);
 
       expect(service.crear).toHaveBeenCalledWith(dto);
-      expect(result).toBe(productoCreado);
+      expect(result.producto).toBe(productoCreado);
     });
   });
 
   describe("listar", () => {
-    it("deberia delegar la listadon al servicio con filtros", async () => {
-      const productosMock = [
-        {
-          id: "prod-1",
-          nombre: "Remera Algodón",
-          descripcion: null,
-          talle: "M",
-          precioCentavos: BigInt(15000),
-          stock: 100,
-          imagenes: ["https://example.com/1.jpg"],
-          activo: true,
-          creadoEn: new Date(),
-          actualizadoEn: new Date(),
-        },
-      ];
+    it("deberia delegar la listadon al servicio", async () => {
+      const productosMock = [makeProducto({ imagenes: ["https://example.com/1.jpg"] })];
 
       service.listar.mockResolvedValue({
         productos: productosMock,
@@ -101,45 +102,16 @@ describe("ProductoController", () => {
         tamano: 20,
       });
 
-      const result = await controller.listar(true, "M", 1, 20);
+      const result = await controller.listar();
 
-      expect(service.listar).toHaveBeenCalledWith({
-        activo: true,
-        talle: "M",
-        pagina: 1,
-        tamano: 20,
-      });
+      expect(service.listar).toHaveBeenCalledWith();
       expect(result.productos).toHaveLength(1);
-    });
-
-    it("deberia listar sin filtros cuando no se proporcionan parametros", async () => {
-      service.listar.mockResolvedValue({
-        productos: [],
-        total: 0,
-        pagina: 1,
-        tamano: 20,
-      });
-
-      await controller.listar(undefined, undefined, undefined, undefined);
-
-      expect(service.listar).toHaveBeenCalledWith({});
     });
   });
 
   describe("obtenerUno", () => {
     it("deberia delegar la obtencion al servicio", async () => {
-      const productoMock = {
-        id: "prod-1",
-        nombre: "Remera Algodón",
-        descripcion: null,
-        talle: "M",
-        precioCentavos: BigInt(15000),
-        stock: 100,
-        imagenes: ["https://example.com/1.jpg"],
-        activo: true,
-        creadoEn: new Date(),
-        actualizadoEn: new Date(),
-      };
+      const productoMock = makeProducto({ imagenes: ["https://example.com/1.jpg"] });
 
       service.obtenerUno.mockResolvedValue(productoMock);
 
@@ -162,26 +134,16 @@ describe("ProductoController", () => {
 
   describe("actualizar", () => {
     it("deberia delegar la actualizacion al servicio", async () => {
-      const updateDto: UpdateProductoDto = { nombre: "Remera Actualizada" };
-      const productoActualizado = {
-        id: "prod-1",
-        nombre: "Remera Actualizada",
-        descripcion: null,
-        talle: "M",
-        precioCentavos: BigInt(15000),
-        stock: 100,
-        imagenes: ["https://example.com/1.jpg"],
-        activo: true,
-        creadoEn: new Date(),
-        actualizadoEn: new Date(),
-      };
+      const updateDto = { nombre: "Remera Actualizada" };
+      const productoActualizado = makeProducto({ nombre: "Remera Actualizada", imagenes: ["https://example.com/1.jpg"] });
 
-      service.actualizar.mockResolvedValue(productoActualizado);
+      mockService.obtenerUno.mockResolvedValue(productoActualizado);
+      service.actualizarAdmin.mockResolvedValue(productoActualizado);
 
-      const result = await controller.actualizar("prod-1", updateDto);
+      const result = await controller.actualizar("prod-1", updateDto, [] as any);
 
-      expect(service.actualizar).toHaveBeenCalledWith("prod-1", updateDto);
-      expect(result.nombre).toBe("Remera Actualizada");
+      expect(service.actualizarAdmin).toHaveBeenCalledWith("prod-1", updateDto, undefined);
+      expect(result.producto.nombre).toBe("Remera Actualizada");
     });
   });
 
@@ -194,7 +156,7 @@ describe("ProductoController", () => {
       const result = await controller.eliminar("prod-1");
 
       expect(service.eliminar).toHaveBeenCalledWith("prod-1");
-      expect(result.eliminado).toBe(true);
+      expect(result.mensaje).toBe("Producto eliminado exitosamente");
     });
   });
 });

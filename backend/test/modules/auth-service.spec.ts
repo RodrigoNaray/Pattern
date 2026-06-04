@@ -3,13 +3,14 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@common/config/database/prisma.service';
+import bcrypt from 'bcrypt';
 
-jest.mock('bcrypt', () => ({
-  compare: jest.fn(),
-}));
+jest.mock('bcrypt', () => {
+  const mock = { compare: jest.fn(), hash: jest.fn() };
+  return { __esModule: true, default: mock, ...mock };
+});
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const bcryptMock = require('bcrypt');
+const bcryptMock = bcrypt as jest.Mocked<typeof bcrypt>;
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -71,7 +72,7 @@ describe('AuthService', () => {
     });
 
     it('debe lanzar error cuando email no registrado', async () => {
-      (prismaMock.administrador.findUnique as jest.Mock<(args: any) => any>).mockResolvedValue(null);
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(
         service.validarAdmin('test@test.com', 'password123'),
@@ -82,9 +83,9 @@ describe('AuthService', () => {
     });
 
     it('debe lanzar error cuando password incorrecto', async () => {
-      bcryptMock.compare.mockResolvedValue(false);
+      (bcryptMock.compare as jest.Mock).mockResolvedValue(false);
 
-      (prismaMock.administrador.findUnique as jest.Mock<(args: any) => any>).mockResolvedValue({
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue({
         id: 'admin-1',
         email: 'test@test.com',
         claveHash: 'hashed-wrong',
@@ -106,10 +107,10 @@ describe('AuthService', () => {
         claveHash: 'hashed-correct',
         nombre: 'Admin Test',
       };
-      (prismaMock.administrador.findUnique as jest.Mock<(args: any) => any>).mockResolvedValue(
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue(
         adminData,
       );
-      bcryptMock.compare.mockResolvedValue(true);
+      (bcryptMock.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.validarAdmin('test@test.com', 'correct-pass');
 
@@ -119,7 +120,7 @@ describe('AuthService', () => {
         nombre: adminData.nombre,
         email: adminData.email,
       });
-      expect((prismaMock.administrador.update as jest.Mock).mock.calls[0][0]).toEqual({
+      expect((prismaMock.administrador!.update as jest.Mock).mock.calls[0][0]).toEqual({
         where: { id: adminData.id },
         data: { ultimoAccesoEn: expect.any(Date) },
       });
@@ -128,7 +129,7 @@ describe('AuthService', () => {
 
   describe('registrarAdmin', () => {
     it('debe lanzar error cuando email ya registrado', async () => {
-      (prismaMock.administrador.findUnique as jest.Mock<(args: any) => any>).mockResolvedValue({
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue({
         id: 'existing',
         email: 'test@test.com',
       });
@@ -139,10 +140,10 @@ describe('AuthService', () => {
     });
 
     it('debe crear un admin exitosamente cuando el email no existe', async () => {
-      (prismaMock.administrador.findUnique as jest.Mock<(args: any) => any>).mockResolvedValue(
+      (prismaMock.administrador!.findUnique as jest.Mock).mockResolvedValue(
         null,
       );
-      (prismaMock.administrador.create as jest.Mock<(args: any) => any>).mockResolvedValue({
+      (prismaMock.administrador!.create as jest.Mock).mockResolvedValue({
         id: 'new-admin',
         nombre: 'Nuevo Admin',
         email: 'new@test.com',
@@ -159,7 +160,7 @@ describe('AuthService', () => {
         nombre: 'Nuevo Admin',
         email: 'new@test.com',
       });
-      expect((prismaMock.administrador.create as jest.Mock).mock.calls[0][0]).toEqual(
+      expect((prismaMock.administrador!.create as jest.Mock).mock.calls[0][0]).toEqual(
         expect.objectContaining({
           data: expect.objectContaining({
             email: 'new@test.com',

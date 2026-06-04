@@ -70,6 +70,7 @@ describe('PedidoService', () => {
         findUnique: jest.fn(),
         findMany: jest.fn(),
         update: jest.fn(),
+        count: jest.fn(),
       },
       notificacion: {
         create: jest.fn(),
@@ -297,6 +298,8 @@ describe('PedidoService', () => {
       expect(prisma.pedido.findMany).toHaveBeenCalledWith({
         where: { estado: 'PENDIENTE_PAGO' },
         orderBy: { creadoEn: 'desc' },
+        skip: 0,
+        take: 20,
         include: {
           _count: {
             select: { items: true },
@@ -342,6 +345,7 @@ describe('PedidoService', () => {
 
       const mockTx = {
         pedido: {
+          findUnique: jest.fn().mockResolvedValue(pedidoConfirmable),
           update: jest.fn().mockResolvedValue({ ...pedidoConfirmable, estado: 'PAGO_CONFIRMADO', confirmadoEn: new Date() }),
         },
         producto: {
@@ -408,6 +412,7 @@ describe('PedidoService', () => {
 
       const mockTx = {
         pedido: {
+          findUnique: jest.fn().mockResolvedValue(pedidoConfirmable),
           update: jest.fn().mockResolvedValue({ ...pedidoConfirmable, estado: 'PAGO_CONFIRMADO', confirmadoEn: new Date() }),
         },
         producto: {
@@ -545,7 +550,10 @@ describe('PedidoService', () => {
       };
 
       const mockTx = {
-        pedido: { update: jest.fn().mockResolvedValue(mockPedidoCancelado) },
+        pedido: {
+          findUnique: jest.fn().mockResolvedValue(pedidoCancelable),
+          update: jest.fn().mockResolvedValue(mockPedidoCancelado),
+        },
         producto: {
           findUnique: jest.fn().mockResolvedValue({ id: 'prod-1', nombre: 'Camiseta básica', stock: 10 }),
           update: jest

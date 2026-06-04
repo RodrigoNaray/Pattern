@@ -168,7 +168,7 @@ describe("ProductoService", () => {
         id: "prod-1",
         nombre: dto.nombre,
         talle: dto.talle,
-        precioCentavos: expect.any(BigInt),
+        precioCentavos: 15000,
         stock: dto.stock,
         descripcion: dto.descripcion,
         imagenes: dto.imagenes,

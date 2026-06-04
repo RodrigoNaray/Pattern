@@ -40,18 +40,27 @@ describe('PedidoService - obtenerInstruccionesPago', () => {
       const pedidoMock = {
         id: 'pedido-123',
         codigo: 'PED-ABC123',
+        emailComprador: 'comprador@email.com',
+        telefonoComprador: '+59899123456',
         totalCentavos: BigInt(15000),
-        estado: 'PENDIENTE_PAGO',
+        estado: 'PENDIENTE_PAGO' as const,
+        creadoEn: new Date(),
+        confirmadoEn: null,
+        vencidoEn: new Date(),
       };
 
       const configuracionMock = {
         id: 'global',
+        nombreTienda: 'Mi Tienda',
         banco: 'Banco NA',
         cbu: '1234567890123456789012',
         alias: 'mi.tienda.pago',
         titular: 'Tienda SA',
         mensajeTransferencia: 'Transferir el monto total',
         whatsappContacto: '+598991234567',
+        actualizadoEn: new Date(),
+        pedidoVencimientoHoras: 48,
+        estadoProductoBorrador: true,
       };
 
       jest.spyOn(prisma.pedido, 'findUnique').mockResolvedValue(pedidoMock);
@@ -78,18 +87,27 @@ describe('PedidoService - obtenerInstruccionesPago', () => {
       const pedidoMock = {
         id: 'pedido-456',
         codigo: 'PED-XYZ789',
+        emailComprador: 'comprador@email.com',
+        telefonoComprador: '+59899123456',
         totalCentavos: BigInt(250000),
-        estado: 'PENDIENTE_PAGO',
+        estado: 'PENDIENTE_PAGO' as const,
+        creadoEn: new Date(),
+        confirmadoEn: null,
+        vencidoEn: new Date(),
       };
 
       const configuracionMock = {
         id: 'global',
+        nombreTienda: 'Mi Tienda',
         banco: 'Banco BB',
         cbu: '9876543210987654321098',
         alias: 'otro.alias',
         titular: 'Otro SL',
         mensajeTransferencia: 'Mensaje',
         whatsappContacto: '598987654321',
+        actualizadoEn: new Date(),
+        pedidoVencimientoHoras: 48,
+        estadoProductoBorrador: true,
       };
 
       jest.spyOn(prisma.pedido, 'findUnique').mockResolvedValue(pedidoMock);
@@ -108,18 +126,27 @@ describe('PedidoService - obtenerInstruccionesPago', () => {
       const pedidoMock = {
         id: 'pedido-789',
         codigo: 'PED-TEST1',
+        emailComprador: 'comprador@email.com',
+        telefonoComprador: '+59899123456',
         totalCentavos: BigInt(10000),
-        estado: 'PENDIENTE_PAGO',
+        estado: 'PENDIENTE_PAGO' as const,
+        creadoEn: new Date(),
+        confirmadoEn: null,
+        vencidoEn: new Date(),
       };
 
       const configuracionMock = {
         id: 'global',
+        nombreTienda: 'Mi Tienda',
         banco: '',
         cbu: '1234567890123456789012',
         alias: 'mi.alias',
         titular: 'Tienda SA',
         mensajeTransferencia: 'Mensaje',
         whatsappContacto: '598991234567',
+        actualizadoEn: new Date(),
+        pedidoVencimientoHoras: 48,
+        estadoProductoBorrador: true,
       };
 
       jest.spyOn(prisma.pedido, 'findUnique').mockResolvedValue(pedidoMock);
@@ -139,18 +166,27 @@ describe('PedidoService - obtenerInstruccionesPago', () => {
       const pedidoMock = {
         id: 'pedido-790',
         codigo: 'PED-TEST2',
+        emailComprador: 'comprador@email.com',
+        telefonoComprador: '+59899123456',
         totalCentavos: BigInt(10000),
-        estado: 'PENDIENTE_PAGO',
+        estado: 'PENDIENTE_PAGO' as const,
+        creadoEn: new Date(),
+        confirmadoEn: null,
+        vencidoEn: new Date(),
       };
 
       const configuracionMock = {
         id: 'global',
+        nombreTienda: 'Mi Tienda',
         banco: 'Banco XX',
         cbu: '',
         alias: 'mi.alias',
         titular: 'Tienda SA',
         mensajeTransferencia: 'Mensaje',
         whatsappContacto: '598991234567',
+        actualizadoEn: new Date(),
+        pedidoVencimientoHoras: 48,
+        estadoProductoBorrador: true,
       };
 
       jest.spyOn(prisma.pedido, 'findUnique').mockResolvedValue(pedidoMock);
@@ -167,18 +203,27 @@ describe('PedidoService - obtenerInstruccionesPago', () => {
       const pedidoMock = {
         id: 'pedido-791',
         codigo: 'PED-TEST3',
+        emailComprador: 'comprador@email.com',
+        telefonoComprador: '+59899123456',
         totalCentavos: BigInt(10000),
-        estado: 'PENDIENTE_PAGO',
+        estado: 'PENDIENTE_PAGO' as const,
+        creadoEn: new Date(),
+        confirmadoEn: null,
+        vencidoEn: new Date(),
       };
 
       const configuracionMock = {
         id: 'global',
+        nombreTienda: 'Mi Tienda',
         banco: 'Banco XX',
         cbu: '1234567890123456789012',
         alias: '',
         titular: 'Tienda SA',
         mensajeTransferencia: 'Mensaje',
         whatsappContacto: '598991234567',
+        actualizadoEn: new Date(),
+        pedidoVencimientoHoras: 48,
+        estadoProductoBorrador: true,
       };
 
       jest.spyOn(prisma.pedido, 'findUnique').mockResolvedValue(pedidoMock);
@@ -195,18 +240,27 @@ describe('PedidoService - obtenerInstruccionesPago', () => {
       const pedidoMock = {
         id: 'pedido-792',
         codigo: 'PED-TEST4',
+        emailComprador: 'comprador@email.com',
+        telefonoComprador: '+59899123456',
         totalCentavos: BigInt(10000),
-        estado: 'PENDIENTE_PAGO',
+        estado: 'PENDIENTE_PAGO' as const,
+        creadoEn: new Date(),
+        confirmadoEn: null,
+        vencidoEn: new Date(),
       };
 
       const configuracionMock = {
         id: 'global',
+        nombreTienda: 'Mi Tienda',
         banco: 'Banco XX',
         cbu: '1234567890123456789012',
         alias: 'mi.alias',
         titular: '',
         mensajeTransferencia: 'Mensaje',
         whatsappContacto: '598991234567',
+        actualizadoEn: new Date(),
+        pedidoVencimientoHoras: 48,
+        estadoProductoBorrador: true,
       };
 
       jest.spyOn(prisma.pedido, 'findUnique').mockResolvedValue(pedidoMock);
@@ -223,18 +277,27 @@ describe('PedidoService - obtenerInstruccionesPago', () => {
       const pedidoMock = {
         id: 'pedido-793',
         codigo: 'PED-TEST5',
+        emailComprador: 'comprador@email.com',
+        telefonoComprador: '+59899123456',
         totalCentavos: BigInt(10000),
-        estado: 'PENDIENTE_PAGO',
+        estado: 'PENDIENTE_PAGO' as const,
+        creadoEn: new Date(),
+        confirmadoEn: null,
+        vencidoEn: new Date(),
       };
 
       const configuracionMock = {
         id: 'global',
+        nombreTienda: 'Mi Tienda',
         banco: 'Banco XX',
         cbu: '1234567890123456789012',
         alias: 'mi.alias',
         titular: 'Tienda SA',
         mensajeTransferencia: 'Mensaje',
         whatsappContacto: '',
+        actualizadoEn: new Date(),
+        pedidoVencimientoHoras: 48,
+        estadoProductoBorrador: true,
       };
 
       jest.spyOn(prisma.pedido, 'findUnique').mockResolvedValue(pedidoMock);

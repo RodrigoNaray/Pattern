@@ -25,6 +25,7 @@ describe('CarritoService', () => {
     prisma = {
       producto: {
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
       },
     };
 
@@ -215,7 +216,8 @@ describe('CarritoService', () => {
         stock: 10,
       });
 
-      await expect(service.eliminarDelCarrito('prod-1')).resolves.toBeUndefined();
+      const resultado = await service.eliminarDelCarrito('prod-1');
+      expect(resultado.mensaje).toContain('eliminado');
     });
   });
 });
