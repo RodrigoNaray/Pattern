@@ -6,6 +6,12 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Iniciando seed de datos...');
 
+  // Limpiar datos existentes que pueden causar conflictos
+  await prisma.notificacion.deleteMany();
+  await prisma.pedidoItem.deleteMany();
+  await prisma.pedido.deleteMany();
+  await prisma.producto.deleteMany();
+
   // Administrador por defecto
   const passwordHash = await bcrypt.hash('admin123', 10);
   await prisma.administrador.upsert({
@@ -53,7 +59,7 @@ async function main() {
       talle: 'L',
       precioCentavos: 3500,
       stock: 30,
-      imagenes: ['https://images.unsplash.com/photo-1624378439575-d870780311d4?w=400&h=400&fit=crop'],
+      imagenes: ['https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=400&h=400&fit=crop'],
     },
     {
       nombre: 'Remera Deporte',
@@ -69,7 +75,7 @@ async function main() {
       talle: 'XL',
       precioCentavos: 8500,
       stock: 15,
-      imagenes: ['https://images.unsplash.com/photo-1551028719-00167b16e658?w=400&h=400&fit=crop'],
+      imagenes: ['https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=400&h=400&fit=crop'],
     },
     {
       nombre: 'Bermuda Casual',
@@ -77,7 +83,7 @@ async function main() {
       talle: 'M',
       precioCentavos: 2200,
       stock: 35,
-      imagenes: ['https://images.unsplash.com/photo-1591195853838-8e900a29e9b8?w=400&h=400&fit=crop'],
+      imagenes: ['https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop'],
     },
     {
       nombre: 'Sueter Lana',
@@ -85,7 +91,7 @@ async function main() {
       talle: 'L',
       precioCentavos: 4500,
       stock: 20,
-      imagenes: ['https://images.unsplash.com/photo-1576566588028-4147f3842627?w=400&h=400&fit=crop'],
+      imagenes: ['https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=400&fit=crop'],
     },
   ];
 

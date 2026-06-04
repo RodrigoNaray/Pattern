@@ -19,13 +19,16 @@ export default function TarjetaProducto({ id, nombre, talle, precioCentavos, ima
 
   return (
     <Link href={`/productos/${id}`} className={styles.container}>
-      <Image
-        src={imagenes[0] || '/placeholder.png'}
-        alt={nombre}
-        className={styles.imagen}
-        width={400}
-        height={240}
-      />
+      <div className={styles.imageWrapper}>
+        <Image
+          src={imagenes[0] || '/placeholder.png'}
+          alt={nombre}
+          fill
+          className={styles.imagen}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          loading="eager"
+        />
+      </div>
       <div className={styles.contenido}>
         <h3 className={styles.nombre}>{nombre}</h3>
         <span className={styles.talle}>Talle: {talle}</span>
