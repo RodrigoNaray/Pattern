@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest"
+    "test": "vitest",
+    "test:coverage": "vitest --coverage --run"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
@@ -23,16 +24,17 @@
     "react-dom": "^19.2.6"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^16.0.0",
     "@types/node": "^20.14.10",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "@vitest/coverage-v8": "2.1.9",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.0",
+    "jsdom": "^24.0.0",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.0",
-    "@vitejs/plugin-react": "^4.0.0",
-    "@testing-library/react": "^16.0.0",
-    "@testing-library/jest-dom": "^6.0.0",
-    "jsdom": "^24.0.0"
+    "vitest": "^2.0.0"
   }
 }
