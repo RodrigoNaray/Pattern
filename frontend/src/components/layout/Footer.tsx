@@ -1,9 +1,46 @@
+import Link from 'next/link';
 import styles from './Footer.module.css';
 
 export function Footer() {
   return (
     <footer className={styles.footer}>
-      <p>Tienda de Ropa &mdash; Todos los derechos reservados</p>
+      <div className={styles.inner}>
+        <div className={styles.columna}>
+          <span className={styles.marca}>Tienda de Ropa</span>
+          <p className={styles.tagline}>Moda con estilo · Uruguay</p>
+        </div>
+
+        <nav className={styles.columna} aria-label="Links del pie de pagina">
+          <span className={styles.columnaTitulo}>Links</span>
+          <Link href="/" className={styles.link}>
+            Inicio
+          </Link>
+          <Link href="/productos" className={styles.link}>
+            Catalogo
+          </Link>
+          <Link href="/sobre-nosotros" className={styles.link}>
+            Sobre nosotros
+          </Link>
+          <Link href="/pedidos" className={styles.link}>
+            Mi pedido
+          </Link>
+        </nav>
+
+        <div className={styles.columna}>
+          <span className={styles.columnaTitulo}>Contacto</span>
+          <span className={styles.textoContacto}>
+            Pagina de contacto y horarios en{' '}
+            <Link href="/sobre-nosotros" className={styles.link}>
+              Sobre nosotros
+            </Link>
+            .
+          </span>
+        </div>
+      </div>
+
+      <p className={styles.copyright}>
+        Tienda de Ropa &mdash; Todos los derechos reservados
+      </p>
     </footer>
   );
 }

@@ -23,6 +23,9 @@ export function Header() {
           <Link href="/productos" className={styles.link}>
             Catalogo
           </Link>
+          <Link href="/sobre-nosotros" className={styles.link}>
+            Sobre nosotros
+          </Link>
           <Link href="/pedidos" className={styles.link}>
             Mi pedido
           </Link>
