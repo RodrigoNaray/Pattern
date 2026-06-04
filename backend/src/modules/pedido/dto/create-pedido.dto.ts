@@ -6,9 +6,12 @@ import {
   IsNotEmpty,
   IsEmail,
   ValidateNested,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+const TELEFONO_URUGUAY_REGEX = /^(0[1-9]\d{6,7}|09\d{7})$/;
 
 class ItemDto {
   @ApiProperty({ description: 'ID del producto', example: '550e8400-e29b-41d4-a716-446655440000' })
@@ -32,9 +35,15 @@ export class CreatePedidoDto {
   @IsNotEmpty()
   readonly emailComprador: string;
 
-  @ApiProperty({ description: 'Teléfono del comprador', example: '+59899123456' })
+  @ApiProperty({
+    description: 'Telefono del comprador (formato Uruguay: 099123456 o 24001234)',
+    example: '099123456',
+  })
   @IsString()
   @IsNotEmpty()
+  @Matches(TELEFONO_URUGUAY_REGEX, {
+    message: 'El telefono debe tener formato Uruguay (ej: 099123456 o 24001234)',
+  })
   readonly telefonoComprador: string;
 
   @ApiProperty({ description: 'Items del pedido', type: [ItemDto] })

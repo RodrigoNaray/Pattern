@@ -82,7 +82,7 @@ describe('PedidoService', () => {
       configuracionTienda: {
         findUnique: jest.fn(),
       },
-      $transaction: jest.fn(),
+      $transaction: jest.fn((fn: (tx: any) => any) => fn(prisma)),
     };
 
     const module: TestingModule = await Test.createTestingModule({

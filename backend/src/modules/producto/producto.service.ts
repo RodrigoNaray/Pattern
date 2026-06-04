@@ -42,13 +42,17 @@ export class ProductoService {
   async listar(params?: {
     activo?: boolean | undefined;
     talle?: string | undefined;
+    q?: string | undefined;
     pagina?: number | undefined;
     tamano?: number | undefined;
   }) {
-    const { activo, talle, pagina = 1, tamano = 20 } = params ?? {};
+    const { activo, talle, q, pagina = 1, tamano = 20 } = params ?? {};
     const where: Record<string, unknown> = {};
     if (activo !== undefined) where.activo = activo;
     if (talle) where.talle = talle;
+    if (q && q.trim()) {
+      where.nombre = { contains: q.trim(), mode: 'insensitive' };
+    }
 
     const [total, productos] = await Promise.all([
       this.prisma.producto.count({ where }),

@@ -28,6 +28,7 @@ interface ProductosResponse {
 interface ProductosQueryParams {
   activo?: boolean;
   talle?: string;
+  q?: string;
   pagina?: number;
   tamano?: number;
 }
@@ -65,6 +66,9 @@ export async function obtenerProductosActivos(params?: ProductosQueryParams): Pr
   }
   if (params?.talle) {
     searchParams.set('talle', params.talle);
+  }
+  if (params?.q) {
+    searchParams.set('q', params.q);
   }
   if (params?.pagina) {
     searchParams.set('pagina', String(params.pagina));

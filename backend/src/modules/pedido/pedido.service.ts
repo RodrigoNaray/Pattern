@@ -69,70 +69,6 @@ export class PedidoService {
       throw new BadRequestException('El carrito está vacío');
     }
 
-    const productosMap = new Map<
-      string,
-      {
-        id: string;
-        nombre: string;
-        talle: string;
-        precioCentavos: bigint;
-        stock: number;
-      }
-    >();
-
-    const stockInsuficientes: StockInsuficienteError[] = [];
-
-    for (const item of data.items) {
-      const producto = await this.prisma.producto.findUnique({
-        where: { id: item.productoId },
-        select: {
-          id: true,
-          nombre: true,
-          talle: true,
-          precioCentavos: true,
-          stock: true,
-        },
-      });
-
-      if (!producto) {
-        throw new NotFoundException(
-          `Producto con ID ${item.productoId} no encontrado`,
-        );
-      }
-
-      if (producto.stock < item.cantidad) {
-        stockInsuficientes.push({
-          productoId: producto.id,
-          nombre: producto.nombre,
-          talle: producto.talle,
-          pedido: item.cantidad,
-          disponible: producto.stock,
-        });
-        continue;
-      }
-
-      productosMap.set(item.productoId, {
-        id: producto.id,
-        nombre: producto.nombre,
-        talle: producto.talle,
-        precioCentavos: producto.precioCentavos,
-        stock: producto.stock,
-      });
-    }
-
-    if (stockInsuficientes.length > 0) {
-      const productosAfectados = stockInsuficientes
-        .map(
-          (s) =>
-            `${s.nombre} (talle: ${s.talle}, pedido: ${s.pedido}, disponible: ${s.disponible})`,
-        )
-        .join('; ');
-
-      throw new BadRequestException(
-        `Stock insuficiente: ${productosAfectados}`,
-      );
-    }
-
     const codigo = this.generarCodigoReferencia();
     const ahora = new Date();
     const vencimientoHoras = await this.obtenerVencimientoHorasConfig();
@@ -140,83 +76,172 @@ export class PedidoService {
       ahora.getTime() + vencimientoHoras * 60 * 60 * 1000,
     );
 
-    let totalCentavosBig = BigInt(0);
+    const resultado = await this.prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        const productosMap = new Map<
+          string,
+          {
+            id: string;
+            nombre: string;
+            talle: string;
+            precioCentavos: bigint;
+            stock: number;
+          }
+        >();
 
-    const itemsData = data.items.map((item) => {
-      const producto = productosMap.get(item.productoId);
-      if (!producto) {
-        throw new NotFoundException(
-          `Producto ${item.productoId} no encontrado`,
-        );
-      }
+        const stockInsuficientes: StockInsuficienteError[] = [];
 
-      const subtotal = BigInt(producto.precioCentavos) * BigInt(item.cantidad);
-      totalCentavosBig += subtotal;
+        for (const item of data.items) {
+          const producto = await tx.producto.findUnique({
+            where: { id: item.productoId },
+            select: {
+              id: true,
+              nombre: true,
+              talle: true,
+              precioCentavos: true,
+              stock: true,
+            },
+          });
 
-      return {
-        productoId: item.productoId,
-        cantidad: item.cantidad,
-        precioUnitarioCentavos: producto.precioCentavos,
-        subtotalCentavos: subtotal,
-      };
-    });
+          if (!producto) {
+            throw new NotFoundException(
+              `Producto con ID ${item.productoId} no encontrado`,
+            );
+          }
 
-    const pedido = await this.prisma.pedido.create({
-      data: {
-        emailComprador: data.emailComprador.trim(),
-        telefonoComprador: data.telefonoComprador.trim(),
-        totalCentavos: totalCentavosBig,
-        codigo,
-        vencidoEn,
-        estado: PedidoService.estadoPendientePago,
-        items: {
-          create: itemsData,
-        },
+          if (producto.stock < item.cantidad) {
+            stockInsuficientes.push({
+              productoId: producto.id,
+              nombre: producto.nombre,
+              talle: producto.talle,
+              pedido: item.cantidad,
+              disponible: producto.stock,
+            });
+            continue;
+          }
+
+          productosMap.set(item.productoId, {
+            id: producto.id,
+            nombre: producto.nombre,
+            talle: producto.talle,
+            precioCentavos: producto.precioCentavos,
+            stock: producto.stock,
+          });
+        }
+
+        if (stockInsuficientes.length > 0) {
+          const productosAfectados = stockInsuficientes
+            .map(
+              (s) =>
+                `${s.nombre} (talle: ${s.talle}, pedido: ${s.pedido}, disponible: ${s.disponible})`,
+            )
+            .join('; ');
+
+          throw new BadRequestException(
+            `Stock insuficiente: ${productosAfectados}`,
+          );
+        }
+
+        let totalCentavosBig = BigInt(0);
+
+        const itemsData = data.items.map((item) => {
+          const producto = productosMap.get(item.productoId);
+          if (!producto) {
+            throw new NotFoundException(
+              `Producto ${item.productoId} no encontrado`,
+            );
+          }
+
+          const subtotal =
+            BigInt(producto.precioCentavos) * BigInt(item.cantidad);
+          totalCentavosBig += subtotal;
+
+          return {
+            productoId: item.productoId,
+            cantidad: item.cantidad,
+            precioUnitarioCentavos: producto.precioCentavos,
+            subtotalCentavos: subtotal,
+          };
+        });
+
+        const pedido = await tx.pedido.create({
+          data: {
+            emailComprador: data.emailComprador.trim(),
+            telefonoComprador: data.telefonoComprador.trim(),
+            totalCentavos: totalCentavosBig,
+            codigo,
+            vencidoEn,
+            estado: PedidoService.estadoPendientePago,
+            items: {
+              create: itemsData,
+            },
+          },
+          include: { items: { include: { producto: true } } },
+        });
+
+        await tx.notificacion.create({
+          data: {
+            canal: PedidoService.canalPanel,
+            mensaje: `Nuevo pedido ${codigo} recibido de ${pedido.emailComprador}`,
+            pedidoId: pedido.id,
+          },
+        });
+
+        const pedidoResultado: CreatePedidoResult = {
+          id: pedido.id,
+          codigo: pedido.codigo,
+          emailComprador: pedido.emailComprador,
+          telefonoComprador: pedido.telefonoComprador,
+          estado: pedido.estado,
+          totalCentavos: Number(pedido.totalCentavos),
+          items: pedido.items.map(
+            (i: {
+              id: string;
+              productoId: string;
+              cantidad: number;
+              precioUnitarioCentavos: bigint;
+              subtotalCentavos: bigint;
+              producto: { nombre: string; talle: string };
+            }) => ({
+              id: i.id,
+              productoId: i.productoId,
+              cantidad: i.cantidad,
+              precioUnitarioCentavos: Number(i.precioUnitarioCentavos),
+              subtotalCentavos: Number(i.subtotalCentavos),
+              producto: {
+                nombre: i.producto.nombre,
+                talle: i.producto.talle,
+              },
+            }),
+          ),
+          creadoEn: pedido.creadoEn,
+          vencidoEn: pedido.vencidoEn,
+        };
+
+        return {
+          mensaje: 'Pedido creado exitosamente',
+          pedido: pedidoResultado,
+        };
+      },
+    );
+
+    return resultado;
+  }
+
+  async buscarPorCodigoYEmail(codigo: string, email: string) {
+    const pedido = await this.prisma.pedido.findFirst({
+      where: {
+        codigo: codigo.trim(),
+        emailComprador: email.trim().toLowerCase(),
       },
       include: { items: { include: { producto: true } } },
     });
 
-    await this.prisma.notificacion.create({
-      data: {
-        canal: PedidoService.canalPanel,
-        mensaje: `Nuevo pedido ${codigo} recibido de ${pedido.emailComprador}`,
-        pedidoId: pedido.id,
-      },
-    });
+    if (!pedido) {
+      throw new NotFoundException('No se encontro un pedido con esos datos');
+    }
 
-    const pedidoResultado: CreatePedidoResult = {
-      id: pedido.id,
-      codigo: pedido.codigo,
-      emailComprador: pedido.emailComprador,
-      telefonoComprador: pedido.telefonoComprador,
-      estado: pedido.estado,
-      totalCentavos: Number(pedido.totalCentavos),
-      items: pedido.items.map((i: {
-        id: string;
-        productoId: string;
-        cantidad: number;
-        precioUnitarioCentavos: bigint;
-        subtotalCentavos: bigint;
-        producto: { nombre: string; talle: string };
-      }) => ({
-        id: i.id,
-        productoId: i.productoId,
-        cantidad: i.cantidad,
-        precioUnitarioCentavos: Number(i.precioUnitarioCentavos),
-        subtotalCentavos: Number(i.subtotalCentavos),
-        producto: {
-          nombre: i.producto.nombre,
-          talle: i.producto.talle,
-        },
-      })),
-      creadoEn: pedido.creadoEn,
-      vencidoEn: pedido.vencidoEn,
-    };
-
-    return {
-      mensaje: 'Pedido creado exitosamente',
-      pedido: pedidoResultado,
-    };
+    return this.construirPedidoDetalle(pedido);
   }
 
   async obtenerUno(id: string) {
@@ -229,6 +254,28 @@ export class PedidoService {
       throw new NotFoundException('Pedido no encontrado');
     }
 
+    return this.construirPedidoDetalle(pedido);
+  }
+
+  private construirPedidoDetalle(pedido: {
+    id: string;
+    codigo: string;
+    emailComprador: string;
+    telefonoComprador: string;
+    estado: string;
+    totalCentavos: bigint;
+    creadoEn: Date;
+    confirmadoEn: Date | null;
+    vencidoEn: Date;
+    items: Array<{
+      id: string;
+      productoId: string;
+      cantidad: number;
+      precioUnitarioCentavos: bigint;
+      subtotalCentavos: bigint;
+      producto: { nombre: string; talle: string };
+    }>;
+  }) {
     return {
       id: pedido.id,
       codigo: pedido.codigo,
@@ -239,14 +286,7 @@ export class PedidoService {
       creadoEn: pedido.creadoEn,
       confirmadoEn: pedido.confirmadoEn,
       vencidoEn: pedido.vencidoEn,
-      items: pedido.items.map((i: {
-        id: string;
-        productoId: string;
-        cantidad: number;
-        precioUnitarioCentavos: bigint;
-        subtotalCentavos: bigint;
-        producto: { nombre: string; talle: string };
-      }) => ({
+      items: pedido.items.map((i) => ({
         id: i.id,
         productoId: i.productoId,
         cantidad: i.cantidad,

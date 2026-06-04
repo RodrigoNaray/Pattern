@@ -48,6 +48,18 @@ export class PedidoController {
     return this.pedidoService.crear(dto);
   }
 
+  @Get('buscar')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Buscar pedido por codigo y email (publico)' })
+  @ApiResponse({ status: 200, description: 'Pedido encontrado' })
+  @ApiResponse({ status: 404, description: 'No se encontro un pedido con esos datos' })
+  async buscarPorCodigoYEmail(
+    @Query('codigo') codigo: string,
+    @Query('email') email: string,
+  ) {
+    return this.pedidoService.buscarPorCodigoYEmail(codigo, email);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obtener un pedido por ID (público)' })
   @ApiResponse({ status: 200, description: 'Pedido encontrado' })

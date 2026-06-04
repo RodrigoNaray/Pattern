@@ -23,6 +23,9 @@ export function Header() {
           <Link href="/productos" className={styles.link}>
             Catalogo
           </Link>
+          <Link href="/pedidos" className={styles.link}>
+            Mi pedido
+          </Link>
           <button
             type="button"
             className={styles.cartButton}

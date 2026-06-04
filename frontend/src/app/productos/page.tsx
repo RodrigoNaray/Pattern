@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { obtenerProductosActivos } from '@/services/producto.service';
 import TarjetaProducto from '@/components/client/tarjeta-producto';
+import BarraBusqueda from '@/components/client/BarraBusqueda';
 import Loading from './loading';
 import Error from './error';
 import styles from './styles.module.css';
@@ -13,7 +14,7 @@ export const metadata = {
 export default async function ProductosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pagina?: string; tamano?: string; talle?: string }>;
+  searchParams: Promise<{ pagina?: string; tamano?: string; talle?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const tamano = Number(params.tamano) || 12;
@@ -22,6 +23,7 @@ export default async function ProductosPage({
   const result = await obtenerProductosActivos({
     activo: true,
     talle: params.talle,
+    q: params.q,
     pagina,
     tamano,
   });
@@ -31,12 +33,13 @@ export default async function ProductosPage({
   }
 
   const { productos } = result.value;
-  const hayFiltrosActivos = Boolean(params.talle);
+  const hayFiltrosActivos = Boolean(params.talle || params.q);
 
   if (productos.length === 0) {
     return (
       <main>
         <h1 className={styles.titulo}>Productos</h1>
+        <BarraBusqueda />
         {hayFiltrosActivos ? (
           <div className={styles.estadoVacioConFiltros}>
             <p className={styles.textoVacio}>
@@ -61,6 +64,7 @@ export default async function ProductosPage({
   return (
     <main>
       <h1 className={styles.titulo}>Productos</h1>
+      <BarraBusqueda />
       <section>
         <ul className={styles.grid}>
           {productos.map((producto) => (
