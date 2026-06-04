@@ -66,11 +66,11 @@ export default function AdminDashboardPage() {
           <span className={styles.cardValue}>{resumen?.productosActivos}</span>
           <span className={styles.cardLabel}>Productos activos</span>
         </Link>
-        <div className={styles.card}>
+        <Link href="/admin/pedidos" className={styles.card}>
           <span className={styles.cardValue}>{resumen?.pedidosPendientes}</span>
           <span className={styles.cardLabel}>Pedidos pendientes</span>
-        </div>
-        <Link href="/notificaciones" className={styles.card}>
+        </Link>
+        <Link href="/admin/notificaciones" className={styles.card}>
           <span className={styles.cardValue}>{resumen?.notificacionesSinLeer}</span>
           <span className={styles.cardLabel}>Notificaciones sin leer</span>
         </Link>

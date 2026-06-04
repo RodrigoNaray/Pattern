@@ -26,7 +26,13 @@ export function AdminHeader() {
           <Link href="/admin/productos" className={styles.link}>
             Productos
           </Link>
-          <Link href="/notificaciones" className={styles.link}>
+          <Link href="/admin/pedidos" className={styles.link}>
+            Pedidos
+          </Link>
+          <Link href="/admin/configuracion" className={styles.link}>
+            Configuracion
+          </Link>
+          <Link href="/admin/notificaciones" className={styles.link}>
             Notificaciones
           </Link>
           <button
