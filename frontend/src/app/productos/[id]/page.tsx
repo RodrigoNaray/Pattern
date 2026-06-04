@@ -20,9 +20,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (result.ok) {
     const producto = result.value;
+    const descripcion =
+      producto.descripcion || `Detalle de ${producto.nombre}. Talle: ${producto.talle}.`;
+    const imagenPrincipal = producto.imagenes[0] ?? '/og-image';
+
     return {
       title: `${producto.nombre} | Tienda de Ropa`,
-      description: producto.descripcion || `Detalle de ${producto.nombre}. Talle: ${producto.talle}.`,
+      description: descripcion,
+      openGraph: {
+        type: 'website',
+        title: producto.nombre,
+        description: descripcion,
+        images: [{ url: imagenPrincipal, alt: producto.nombre }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: producto.nombre,
+        description: descripcion,
+        images: [imagenPrincipal],
+      },
     };
   }
 

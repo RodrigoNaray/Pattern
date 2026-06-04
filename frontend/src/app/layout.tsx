@@ -17,12 +17,41 @@ const inter = Inter({
   variable: '--font-body',
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: {
     default: 'Tienda de Ropa',
     template: '%s | Tienda de Ropa',
   },
   description: 'Explora nuestra coleccion de ropa con estilo y calidad. Pedidos faciles por transferencia bancaria.',
+  openGraph: {
+    type: 'website',
+    locale: 'es_UY',
+    siteName: 'Tienda de Ropa',
+    title: 'Tienda de Ropa',
+    description: 'Explora nuestra coleccion de ropa con estilo y calidad. Pedidos faciles por transferencia bancaria.',
+    url: baseUrl,
+    images: [
+      {
+        url: '/og-image',
+        width: 1200,
+        height: 630,
+        alt: 'Tienda de Ropa',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tienda de Ropa',
+    description: 'Explora nuestra coleccion de ropa con estilo y calidad. Pedidos faciles por transferencia bancaria.',
+    images: ['/og-image'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
