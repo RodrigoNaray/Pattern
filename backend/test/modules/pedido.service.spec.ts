@@ -68,6 +68,7 @@ describe('PedidoService', () => {
       pedido: {
         create: jest.fn(),
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
         findMany: jest.fn(),
         update: jest.fn(),
         count: jest.fn(),
@@ -287,6 +288,115 @@ describe('PedidoService', () => {
       prisma.pedido.findUnique.mockResolvedValue(null);
 
       await expect(service.obtenerUno('pedido-inexistente')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('buscarPorCodigoYEmail', () => {
+    it('debe retornar el detalle del pedido cuando codigo y email coinciden', async () => {
+      prisma.pedido.findFirst.mockResolvedValue(mockPedidoWithItems as any);
+
+      const result = await service.buscarPorCodigoYEmail('PED-ABC123XY', 'comprador@email.com');
+
+      expect(result).toBeDefined();
+      expect(result.codigo).toBe('PED-ABC123XY');
+      expect(result.emailComprador).toBe('comprador@email.com');
+      expect(prisma.pedido.findFirst).toHaveBeenCalledWith({
+        where: {
+          codigo: 'PED-ABC123XY',
+          emailComprador: 'comprador@email.com',
+        },
+        include: { items: { include: { producto: true } } },
+      });
+    });
+
+    it('debe normalizar el email a minusculas y trimear ambos campos', async () => {
+      prisma.pedido.findFirst.mockResolvedValue(mockPedidoWithItems as any);
+
+      await service.buscarPorCodigoYEmail('  PED-ABC123XY  ', '  COMPRADOR@EMAIL.COM  ');
+
+      expect(prisma.pedido.findFirst).toHaveBeenCalledWith({
+        where: {
+          codigo: 'PED-ABC123XY',
+          emailComprador: 'comprador@email.com',
+        },
+        include: { items: { include: { producto: true } } },
+      });
+    });
+
+    it('debe lanzar NotFoundException cuando no encuentra el pedido', async () => {
+      prisma.pedido.findFirst.mockResolvedValue(null);
+
+      await expect(service.buscarPorCodigoYEmail('NO-EXISTE', 'otro@email.com'))
+        .rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('listarTodosParaExport', () => {
+    it('debe llamar a prisma.pedido.findMany sin filtros cuando no se pasan', async () => {
+      prisma.pedido.findMany.mockResolvedValue([mockPedidoWithItems] as any);
+
+      const result = await service.listarTodosParaExport();
+
+      expect(result).toHaveLength(1);
+      expect(prisma.pedido.findMany).toHaveBeenCalledWith({
+        where: {},
+        orderBy: { creadoEn: 'desc' },
+        include: {
+          items: {
+            include: {
+              producto: { select: { nombre: true, talle: true } },
+            },
+          },
+        },
+      });
+    });
+
+    it('debe filtrar por estado y rango de fechas cuando se pasan', async () => {
+      prisma.pedido.findMany.mockResolvedValue([] as any);
+
+      await service.listarTodosParaExport({
+        estado: 'PAGO_CONFIRMADO',
+        desde: '2026-01-01T00:00:00.000Z',
+        hasta: '2026-12-31T23:59:59.999Z',
+      });
+
+      expect(prisma.pedido.findMany).toHaveBeenCalledWith({
+        where: {
+          estado: 'PAGO_CONFIRMADO',
+          creadoEn: {
+            gte: new Date('2026-01-01T00:00:00.000Z'),
+            lte: new Date('2026-12-31T23:59:59.999Z'),
+          },
+        },
+        orderBy: { creadoEn: 'desc' },
+        include: {
+          items: {
+            include: {
+              producto: { select: { nombre: true, talle: true } },
+            },
+          },
+        },
+      });
+    });
+
+    it('debe incluir solo el limite superior (lte) cuando solo se pasa hasta', async () => {
+      prisma.pedido.findMany.mockResolvedValue([] as any);
+
+      await service.listarTodosParaExport({ hasta: '2026-06-30T00:00:00.000Z' });
+
+      expect(prisma.pedido.findMany).toHaveBeenCalledWith({
+        where: {
+          creadoEn: { lte: new Date('2026-06-30T00:00:00.000Z') },
+        },
+        orderBy: { creadoEn: 'desc' },
+        include: {
+          items: {
+            include: {
+              producto: { select: { nombre: true, talle: true } },
+            },
+          },
+        },
+      });
     });
   });
 
