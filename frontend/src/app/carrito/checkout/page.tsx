@@ -3,6 +3,8 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCarrito } from '@/components/carrito/carrito-context';
+import { apiFetch } from '@/services/api-fetch';
+import { formatearPrecio } from '@/lib/formatear-precio';
 import styles from './CheckoutPage.module.css';
 
 interface PedidoCreado {
@@ -10,14 +12,7 @@ interface PedidoCreado {
   codigo: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-function formatearPrecio(centavos: number): string {
-  return new Intl.NumberFormat('es-UY', {
-    style: 'currency',
-    currency: 'UYU',
-  }).format(centavos / 100);
-}
+const TELEFONO_URUGUAY_REGEX = /^(0[1-9]\d{6,7}|09\d{7})$/;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -45,40 +40,34 @@ export default function CheckoutPage() {
       setError('El email no tiene un formato valido');
       return;
     }
-    if (!telefono.trim()) {
-      setError('El telefono es obligatorio');
+    if (!TELEFONO_URUGUAY_REGEX.test(telefono.trim())) {
+      setError('El telefono debe tener formato Uruguay (ej: 099123456 o 24001234)');
       return;
     }
 
     setEnviando(true);
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/pedidos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          emailComprador: email,
-          telefonoComprador: telefono,
-          items: items.map((item) => ({
-            productoId: item.productoId,
-            cantidad: item.cantidad,
-          })),
-        }),
-      });
+    const resultado = await apiFetch<{ pedido: PedidoCreado }>('/pedidos', {
+      method: 'POST',
+      body: JSON.stringify({
+        emailComprador: email,
+        telefonoComprador: telefono,
+        items: items.map((item) => ({
+          productoId: item.productoId,
+          cantidad: item.cantidad,
+        })),
+      }),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al crear el pedido');
-      }
+    setEnviando(false);
 
-      const data: { pedido: PedidoCreado } = await response.json();
-      vaciar();
-      router.push(`/pedidos/${data.pedido.id}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ocurrio un error inesperado');
-    } finally {
-      setEnviando(false);
+    if (!resultado.ok) {
+      setError(resultado.error.message);
+      return;
     }
+
+    vaciar();
+    router.push(`/pedidos/${resultado.value.pedido.id}`);
   }
 
   if (items.length === 0) {
@@ -134,7 +123,7 @@ export default function CheckoutPage() {
             onChange={(e) => setTelefono(e.target.value)}
             required
             disabled={enviando}
-            placeholder="09XX XXX XXX"
+            placeholder="099123456"
           />
         </div>
 

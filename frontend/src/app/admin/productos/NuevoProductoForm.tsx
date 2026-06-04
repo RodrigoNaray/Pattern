@@ -211,7 +211,7 @@ export default function NuevoProductoForm({ onCancelar, onPublicado }: NuevoProd
 
           <div className={styles.campo}>
             <label htmlFor="precio" className={styles.etiqueta}>
-              Precio (ARS)<span className={styles.requerido}>*</span>
+              Precio (UYU)<span className={styles.requerido}>*</span>
             </label>
             <input
               id="precio"

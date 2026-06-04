@@ -28,7 +28,7 @@ export default function AdminDashboardPage() {
         const [pedidosRes, productosRes, notifRes] = await Promise.all([
           fetch(`${API_BASE_URL}/pedidos/list-pendientes?tamano=1`, { headers }),
           fetch(`${API_BASE_URL}/productos`, { headers }),
-          fetch(`${API_BASE_URL}/admin/notificaciones?unread=true`, { headers }),
+          fetch(`${API_BASE_URL}/admin/notificaciones?filtro=unread`, { headers }),
         ]);
 
         const pedidosData = pedidosRes.ok ? await pedidosRes.json() : { data: [], total: 0 };

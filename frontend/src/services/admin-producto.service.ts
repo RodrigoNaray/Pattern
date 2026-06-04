@@ -103,7 +103,7 @@ export async function actualizarProducto(
   }
 
   return apiFetch<ActualizarProductoResponse>(`/admin/productos/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     body: formData,
   });
 }

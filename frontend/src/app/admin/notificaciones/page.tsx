@@ -1,46 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { obtenerToken } from '@/services/auth.service';
+import { notificacionService } from '@/services/notificacion.service';
+import { Notificacion, NotificacionDetalle } from '@/types/notificacion';
 import styles from '@/styles/notificaciones.module.css';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-interface Notificacion {
-  id: string;
-  canal: string;
-  mensaje: string;
-  leida: boolean;
-  creadoEn: string;
-}
-
-interface PedidoResumen {
-  codigo: string;
-  emailComprador: string;
-  telefonoComprador: string;
-  estado: string;
-  totalCentavos: number;
-  confirmadoEn: string | null;
-  vencidoEn: string;
-}
-
-interface NotificacionDetalle {
-  id: string;
-  canal: string;
-  mensaje: string;
-  leida: boolean;
-  creadoEn: string;
-  pedido: PedidoResumen | null;
-}
-
-function getHeaders(): Record<string, string> {
-  const token = obtenerToken();
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-  return headers;
-}
-
-function formatDate(date: string): string {
+function formatDate(date: string | Date): string {
   const d = new Date(date);
   const day = d.getDate().toString().padStart(2, '0');
   const month = (d.getMonth() + 1).toString().padStart(2, '0');
@@ -74,13 +39,8 @@ function NotificacionItem({
     setLoading(true);
     setExpanded(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/admin/notificaciones/${notificacion.id}/detalle`, {
-        headers: getHeaders(),
-      });
-      if (res.ok) {
-        const data = (await res.json()) as NotificacionDetalle;
-        setDetalle(data);
-      }
+      const data = await notificacionService.obtenerDetalle(notificacion.id);
+      setDetalle(data);
     } catch {
       console.error('Error al obtener detalle');
     } finally {
@@ -140,12 +100,7 @@ export default function AdminNotificacionesPage() {
     setLoading(true);
     setError(null);
     try {
-      const params = filtro === 'unread' ? '?filtro=unread' : '';
-      const res = await fetch(`${API_BASE_URL}/admin/notificaciones/${params}`, {
-        headers: getHeaders(),
-      });
-      if (!res.ok) throw new Error('Error al cargar notificaciones');
-      const data = (await res.json()) as Notificacion[];
+      const data = await notificacionService.listar({ filtro });
       setNotificaciones(data);
     } catch {
       setError('No se pudieron cargar las notificaciones');
@@ -158,10 +113,7 @@ export default function AdminNotificacionesPage() {
 
   const handleMarcarComoLeida = useCallback(async (id: string) => {
     try {
-      await fetch(`${API_BASE_URL}/admin/notificaciones/${id}/leida`, {
-        method: 'PATCH',
-        headers: getHeaders(),
-      });
+      await notificacionService.marcarComoLeida(id);
       setNotificaciones((prev) =>
         prev.map((n) => (n.id === id ? { ...n, leida: true } : n)),
       );
