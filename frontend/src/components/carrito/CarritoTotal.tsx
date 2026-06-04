@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import styles from './CarritoTotal.module.css';
+import { formatearNumero } from '@/lib/formatear-precio';
 
 interface CarritoTotalProps {
   totalCentavos: number;
@@ -12,8 +13,7 @@ interface CarritoTotalProps {
 export function CarritoTotal({ totalCentavos, hayStockInsuficiente, onCheckout }: CarritoTotalProps) {
   const router = useRouter();
 
-  const formatPeso = (valor: number) =>
-    `$ ${valor.toLocaleString('es-AR')}`;
+  const formatPeso = (valor: number) => formatearNumero(valor);
 
   const handleCheckout = () => {
     onCheckout();

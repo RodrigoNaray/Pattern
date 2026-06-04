@@ -470,9 +470,9 @@ export class PedidoService {
     );
     const enlaceWhatsApp = `https://wa.me/${whatsappNumeros}?text=${mensajeReferencia}`;
 
-    const totalFormateado = new Intl.NumberFormat('es-AR', {
+    const totalFormateado = new Intl.NumberFormat('es-UY', {
       style: 'currency',
-      currency: 'ARS',
+      currency: 'UYU',
       minimumFractionDigits: 0,
     }).format(Number(pedido.totalCentavos) / 100);
 

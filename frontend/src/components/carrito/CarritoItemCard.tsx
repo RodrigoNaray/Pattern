@@ -1,5 +1,6 @@
 import type { CarritoItem } from '@/services/carrito.service';
 import styles from './CarritoItemCard.module.css';
+import { formatearNumero } from '@/lib/formatear-precio';
 
 interface CarritoItemCardProps {
   item: CarritoItem;
@@ -65,7 +66,7 @@ export function CarritoItemCard({ item, onUpdateQuantity, onRemove, stockDisponi
       </div>
 
       <div style={{ textAlign: 'right' }}>
-        <span className={styles.itemSubtotal}>$ {item.subtotalCentavos.toLocaleString('es-AR')}</span>
+        <span className={styles.itemSubtotal}>{formatearNumero(item.subtotalCentavos)}</span>
         <div>
           <button
             type="button"

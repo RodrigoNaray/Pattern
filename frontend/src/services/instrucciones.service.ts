@@ -1,6 +1,6 @@
 import type { PedidoInstruccionesPagoDto } from '@/types/pedido-instrucciones';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export class InstruccionesService {
   static async obtenerInstruccionesPago(pedidoId: string): Promise<PedidoInstruccionesPagoDto> {

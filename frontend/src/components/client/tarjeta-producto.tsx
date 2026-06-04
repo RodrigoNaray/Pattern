@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './tarjeta-producto.module.css';
+import { formatearPrecio } from '@/lib/formatear-precio';
 
 interface TarjetaProductoProps {
   id: string;
@@ -11,11 +12,7 @@ interface TarjetaProductoProps {
 }
 
 export default function TarjetaProducto({ id, nombre, talle, precioCentavos, imagenes }: TarjetaProductoProps) {
-  const precioFormateado = new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0,
-  }).format(precioCentavos / 100);
+  const precioFormateado = formatearPrecio(precioCentavos);
 
   return (
     <Link href={`/productos/${id}`} className={styles.container}>
