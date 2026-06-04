@@ -307,6 +307,123 @@ export class PedidoService {
     };
   }
 
+  async listarTodosParaExport(filtros?: {
+    estado?: string;
+    desde?: string;
+    hasta?: string;
+  }): Promise<
+    Array<{
+      id: string;
+      codigo: string;
+      emailComprador: string;
+      telefonoComprador: string;
+      estado: string;
+      totalCentavos: bigint;
+      creadoEn: Date;
+      items: Array<{
+        id: string;
+        cantidad: number;
+        precioUnitarioCentavos: bigint;
+        subtotalCentavos: bigint;
+        producto: { nombre: string; talle: string };
+      }>;
+    }>
+  > {
+    const where: Record<string, unknown> = {};
+    if (filtros?.estado) where.estado = filtros.estado;
+    if (filtros?.desde || filtros?.hasta) {
+      const creadoEn: Record<string, Date> = {};
+      if (filtros.desde) creadoEn.gte = new Date(filtros.desde);
+      if (filtros.hasta) creadoEn.lte = new Date(filtros.hasta);
+      where.creadoEn = creadoEn;
+    }
+
+    return this.prisma.pedido.findMany({
+      where,
+      orderBy: { creadoEn: 'desc' },
+      include: {
+        items: {
+          include: {
+            producto: { select: { nombre: true, talle: true } },
+          },
+        },
+      },
+    });
+  }
+
+  static generarCsv(
+    pedidos: Array<{
+      codigo: string;
+      emailComprador: string;
+      telefonoComprador: string;
+      estado: string;
+      totalCentavos: bigint | number;
+      creadoEn: Date;
+      items: Array<{
+        cantidad: number;
+        precioUnitarioCentavos: bigint | number;
+        subtotalCentavos: bigint | number;
+        producto: { nombre: string; talle: string };
+      }>;
+    }>,
+    opciones?: { agregarBOM?: boolean },
+  ): string {
+    const agregarBOM = opciones?.agregarBOM !== false;
+    const separador = ',';
+
+    const encabezado = [
+      'codigo',
+      'fecha',
+      'email',
+      'telefono',
+      'estado',
+      'producto',
+      'talle',
+      'cantidad',
+      'precio_unitario_centavos',
+      'subtotal_centavos',
+      'total_pedido_centavos',
+    ].join(separador);
+
+    const lineas: string[] = [encabezado];
+
+    for (const pedido of pedidos) {
+      const totalCentavos = pedido.totalCentavos.toString();
+      const fechaIso = pedido.creadoEn.toISOString();
+
+      for (const item of pedido.items) {
+        const fila = [
+          pedido.codigo,
+          fechaIso,
+          pedido.emailComprador,
+          pedido.telefonoComprador,
+          pedido.estado,
+          item.producto.nombre,
+          item.producto.talle,
+          item.cantidad.toString(),
+          item.precioUnitarioCentavos.toString(),
+          item.subtotalCentavos.toString(),
+          totalCentavos,
+        ].map(PedidoService.escaparCsv);
+
+        lineas.push(fila.join(separador));
+      }
+    }
+
+    const cuerpo = lineas.join('\r\n');
+    const bom = agregarBOM ? '\uFEFF' : '';
+    return bom + cuerpo + '\r\n';
+  }
+
+  static escaparCsv(valor: string | number | null | undefined): string {
+    if (valor === null || valor === undefined) return '';
+    const texto = String(valor);
+    if (/[",\r\n]/.test(texto)) {
+      return `"${texto.replace(/"/g, '""')}"`;
+    }
+    return texto;
+  }
+
   async listarPendientes(params?: { pagina?: number; tamano?: number }): Promise<{ pedidos: PedidoPendienteDto[]; total: number; pagina: number; tamano: number }> {
     const { pagina = 1, tamano = 20 } = params ?? {};
 

@@ -11,11 +11,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Response } from 'express';
+import { Res } from '@nestjs/common';
 import { PedidoService, CreatePedidoResult } from './pedido.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { PedidoInstruccionesPagoDto } from './dto/pedido-instrucciones-pago.dto';
 import { PedidoPendienteDto } from './dto/pedido-pendiente.dto';
 import { CancelarPedidoResponse } from './dto/cancelar-pedido-response.dto';
+import { ExportarPedidosQueryDto } from './dto/exportar-pedidos-query.dto';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('pedidos')
@@ -58,6 +61,29 @@ export class PedidoController {
     @Query('email') email: string,
   ) {
     return this.pedidoService.buscarPorCodigoYEmail(codigo, email);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('export')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Exportar pedidos a CSV (admin)' })
+  @ApiResponse({ status: 200, description: 'Archivo CSV con todos los pedidos' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  async exportarCsv(
+    @Query() query: ExportarPedidosQueryDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<string> {
+    const pedidos = await this.pedidoService.listarTodosParaExport(query);
+    const csv = PedidoService.generarCsv(pedidos, { agregarBOM: true });
+
+    const fecha = new Date().toISOString().slice(0, 10);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="pedidos-${fecha}.csv"`,
+    );
+    return csv;
   }
 
   @Get(':id')

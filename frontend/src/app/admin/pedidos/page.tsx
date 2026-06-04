@@ -36,6 +36,7 @@ export default function AdminPedidosPage() {
   const [pagina, setPagina] = useState(1);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [exportando, setExportando] = useState(false);
   const tamano = 20;
 
   const cargar = useCallback(async () => {
@@ -56,9 +57,31 @@ export default function AdminPedidosPage() {
 
   const totalPaginas = Math.max(1, Math.ceil(total / tamano));
 
+  const handleExportar = async () => {
+    setExportando(true);
+    setError(null);
+    try {
+      await pedidoAdminService.exportarCsv();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al exportar CSV');
+    } finally {
+      setExportando(false);
+    }
+  };
+
   return (
     <main className={styles.container}>
-      <h1 className={styles.titulo}>Pedidos</h1>
+      <div className={styles.cabecera}>
+        <h1 className={styles.titulo}>Pedidos</h1>
+        <button
+          type="button"
+          className={styles.botonExportar}
+          onClick={() => void handleExportar()}
+          disabled={exportando}
+        >
+          {exportando ? 'Exportando...' : 'Exportar CSV'}
+        </button>
+      </div>
 
       {error && <p className={styles.error}>{error}</p>}
 

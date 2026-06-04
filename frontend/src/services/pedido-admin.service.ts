@@ -1,4 +1,8 @@
 import { apiFetch } from './api-fetch';
+import { obtenerToken } from './auth.service';
+import { descargarArchivo } from './descargar-archivo';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 interface PedidoPendiente {
   id: string;
@@ -65,5 +69,28 @@ export const pedidoAdminService = {
       method: 'PUT',
     });
     if (!result.ok) throw new Error(result.error.message);
+  },
+
+  async exportarCsv(): Promise<void> {
+    const token = obtenerToken();
+    const headers = new Headers();
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+
+    const res = await fetch(`${API_BASE_URL}/pedidos/export`, { headers });
+
+    if (!res.ok) {
+      let mensaje = `Error HTTP ${res.status}`;
+      try {
+        const data = (await res.json()) as { message?: string | string[] };
+        if (Array.isArray(data.message)) mensaje = data.message[0];
+        else if (typeof data.message === 'string') mensaje = data.message;
+      } catch {
+      }
+      throw new Error(mensaje);
+    }
+
+    const blob = await res.blob();
+    const fecha = new Date().toISOString().slice(0, 10);
+    descargarArchivo(blob, `pedidos-${fecha}.csv`);
   },
 };

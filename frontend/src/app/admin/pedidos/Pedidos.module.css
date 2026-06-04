@@ -11,6 +11,41 @@
   color: var(--color-text-primary);
 }
 
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.cabecera .titulo {
+  margin-bottom: 0;
+}
+
+.botonExportar {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: white;
+  background: var(--color-accent-green);
+  border: 1px solid var(--color-accent-green);
+  border-radius: 4px;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.botonExportar:hover:not(:disabled) {
+  background: var(--color-accent-green-hover, #3d4f41);
+  border-color: var(--color-accent-green-hover, #3d4f41);
+}
+
+.botonExportar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .accionesSuperior {
   display: flex;
   gap: var(--space-sm);

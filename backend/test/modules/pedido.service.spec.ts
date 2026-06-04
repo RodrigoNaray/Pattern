@@ -677,4 +677,113 @@ describe('PedidoService', () => {
       expect(prisma.$transaction).not.toHaveBeenCalled();
     });
   });
+
+  describe('generarCsv', () => {
+    const pedidoBase = {
+      codigo: 'PED-ABC123',
+      emailComprador: 'cliente@ejemplo.com',
+      telefonoComprador: '099123456',
+      estado: 'PENDIENTE_PAGO',
+      totalCentavos: 30000,
+      creadoEn: new Date('2026-06-04T15:30:00.000Z'),
+    };
+
+    it('debe generar una fila por cada item con headers en la primera linea', () => {
+      const pedidos = [
+        {
+          ...pedidoBase,
+          items: [
+            {
+              cantidad: 2,
+              precioUnitarioCentavos: 15000,
+              subtotalCentavos: 30000,
+              producto: { nombre: 'Remera basica', talle: 'M' },
+            },
+          ],
+        },
+      ];
+
+      const csv = PedidoService.generarCsv(pedidos as any);
+      const lineas = csv.replace(/^\uFEFF/, '').trim().split('\r\n');
+
+      expect(lineas[0]).toBe(
+        'codigo,fecha,email,telefono,estado,producto,talle,cantidad,precio_unitario_centavos,subtotal_centavos,total_pedido_centavos',
+      );
+      expect(lineas[1]).toBe(
+        'PED-ABC123,2026-06-04T15:30:00.000Z,cliente@ejemplo.com,099123456,PENDIENTE_PAGO,Remera basica,M,2,15000,30000,30000',
+      );
+    });
+
+    it('debe escapar comillas y comillas internas duplicadas (RFC 4180)', () => {
+      const pedidos = [
+        {
+          ...pedidoBase,
+          items: [
+            {
+              cantidad: 1,
+              precioUnitarioCentavos: 1000,
+              subtotalCentavos: 1000,
+              producto: { nombre: 'Remera "edicion limitada", algodon', talle: 'L' },
+            },
+          ],
+        },
+      ];
+
+      const csv = PedidoService.generarCsv(pedidos as any);
+      const lineas = csv.replace(/^\uFEFF/, '').trim().split('\r\n');
+
+      expect(lineas[1]).toContain('"Remera ""edicion limitada"", algodon"');
+    });
+
+    it('debe omitir pedidos sin items (no genera filas vacias)', () => {
+      const pedidos = [
+        {
+          ...pedidoBase,
+          codigo: 'PED-CON-ITEM',
+          items: [
+            {
+              cantidad: 1,
+              precioUnitarioCentavos: 5000,
+              subtotalCentavos: 5000,
+              producto: { nombre: 'Pantalon', talle: 'S' },
+            },
+          ],
+        },
+        {
+          ...pedidoBase,
+          codigo: 'PED-SIN-ITEM',
+          items: [],
+        },
+      ];
+
+      const csv = PedidoService.generarCsv(pedidos as any);
+      const lineas = csv.replace(/^\uFEFF/, '').trim().split('\r\n');
+
+      expect(lineas).toHaveLength(2);
+      expect(lineas[1]).toContain('PED-CON-ITEM');
+      expect(csv).not.toContain('PED-SIN-ITEM');
+    });
+
+    it('debe incluir BOM UTF-8 al inicio para compatibilidad con Excel', () => {
+      const pedidos = [
+        {
+          ...pedidoBase,
+          items: [
+            {
+              cantidad: 1,
+              precioUnitarioCentavos: 1000,
+              subtotalCentavos: 1000,
+              producto: { nombre: 'Test', talle: 'M' },
+            },
+          ],
+        },
+      ];
+
+      const csvConBOM = PedidoService.generarCsv(pedidos as any);
+      const csvSinBOM = PedidoService.generarCsv(pedidos as any, { agregarBOM: false });
+
+      expect(csvConBOM.charCodeAt(0)).toBe(0xfeff);
+      expect(csvSinBOM.charCodeAt(0)).not.toBe(0xfeff);
+    });
+  });
 });
