@@ -318,3 +318,31 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.separadorAcciones {
+  width: 1px;
+  height: 16px;
+  background: var(--color-border);
+}
+
+.botonEliminar {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-bg-primary);
+  background-color: var(--color-accent-terracotta);
+  border: 1px solid var(--color-accent-terracotta);
+  border-radius: var(--border-radius);
+  padding: 2px var(--space-sm);
+  cursor: pointer;
+  transition: opacity 150ms ease-out;
+}
+
+.botonEliminar:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.botonEliminar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

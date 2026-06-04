@@ -6,19 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import NuevoProductoForm from './NuevoProductoForm';
 import type { ProductoPublicado } from '../../../services/admin-producto.service';
-import { listarProductosAdmin, desactivarProducto } from '../../../services/admin-producto.service';
+import { listarProductosAdmin, desactivarProducto, eliminarProducto } from '../../../services/admin-producto.service';
 import styles from './AdminProductosPage.module.css';
 import { fadeInUp, motionConfig } from '../../../lib/animations';
-
-const PRECIO_DIVISOR = 100;
-
-function formatearPrecio(centavos: number): string {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0,
-  }).format(centavos / PRECIO_DIVISOR);
-}
+import { formatearPrecio } from '../../../lib/formatear-precio';
 
 export default function AdminProductosClient() {
   const router = useRouter();
@@ -29,7 +20,10 @@ export default function AdminProductosClient() {
   const [cargando, setCargando] = useState(true);
   const [desactivando, setDesactivando] = useState<string | null>(null);
   const [productoAConfirmar, setProductoAConfirmar] = useState<string | null>(null);
+  const [productoAEliminar, setProductoAEliminar] = useState<string | null>(null);
+  const [eliminando, setEliminando] = useState<string | null>(null);
   const [errorDesactivar, setErrorDesactivar] = useState<string | null>(null);
+  const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
 
   const mostrarFormulario = searchParams.get('accion') === 'nuevo';
 
@@ -74,6 +68,13 @@ export default function AdminProductosClient() {
     }
   }, [errorDesactivar]);
 
+  useEffect(() => {
+    if (errorEliminar) {
+      const temporizador = setTimeout(() => setErrorEliminar(null), 5000);
+      return () => clearTimeout(temporizador);
+    }
+  }, [errorEliminar]);
+
   const manejarDesactivar = useCallback(async (id: string) => {
     setDesactivando(id);
     setErrorDesactivar(null);
@@ -87,6 +88,19 @@ export default function AdminProductosClient() {
     setProductos((prev) =>
       prev.map((p) => (p.id === id ? { ...p, activo: false } : p)),
     );
+  }, []);
+
+  const manejarEliminar = useCallback(async (id: string) => {
+    setEliminando(id);
+    setErrorEliminar(null);
+    const resultado = await eliminarProducto(id);
+    setEliminando(null);
+    setProductoAEliminar(null);
+    if (!resultado.ok) {
+      setErrorEliminar(resultado.error.message);
+      return;
+    }
+    setProductos((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
   return (
@@ -139,6 +153,28 @@ export default function AdminProductosClient() {
               type="button"
               className={styles.botonCerrarError}
               onClick={() => setErrorDesactivar(null)}
+              aria-label="Cerrar mensaje de error"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+        {errorEliminar && (
+          <motion.div
+            className={styles.bannerError}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={fadeInUp}
+            transition={motionConfig}
+            role="alert"
+            aria-live="assertive"
+          >
+            <p className={styles.textoError}>{errorEliminar}</p>
+            <button
+              type="button"
+              className={styles.botonCerrarError}
+              onClick={() => setErrorEliminar(null)}
               aria-label="Cerrar mensaje de error"
             >
               ✕
@@ -223,6 +259,39 @@ export default function AdminProductosClient() {
                         Desactivar
                       </button>
                     )
+                  )}
+                  <span className={styles.separadorAcciones} aria-hidden="true" />
+                  {productoAEliminar === producto.id ? (
+                    <div className={styles.confirmacion} role="group" aria-label="Confirmar eliminación">
+                      <span className={styles.textoConfirmacion}>¿Eliminar?</span>
+                      <button
+                        type="button"
+                        className={styles.botonConfirmar}
+                        onClick={() => void manejarEliminar(producto.id)}
+                        disabled={eliminando === producto.id}
+                        aria-label={`Confirmar eliminación de ${producto.nombre}`}
+                      >
+                        {eliminando === producto.id ? '...' : 'Sí'}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.botonCancelarConfirmacion}
+                        onClick={() => setProductoAEliminar(null)}
+                        disabled={eliminando === producto.id}
+                        aria-label="Cancelar eliminación"
+                      >
+                        No
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.botonEliminar}
+                      onClick={() => setProductoAEliminar(producto.id)}
+                      aria-label={`Eliminar ${producto.nombre}`}
+                    >
+                      Eliminar
+                    </button>
                   )}
                 </div>
               </div>

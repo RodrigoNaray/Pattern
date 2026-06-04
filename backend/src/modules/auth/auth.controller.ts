@@ -7,13 +7,15 @@ import {
   HttpStatus,
   UsePipes,
   ValidationPipe,
+  UseGuards,
   BadRequestException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginAdminDto } from './dto/login-admin.dto';
 import { RegistrarAdminDto } from './dto/registrar-admin.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -41,6 +43,8 @@ export class AuthController {
     return this.authService.validarAdmin(dto.email, dto.password);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post('registrar-admin')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registrar nuevo administrador' })

@@ -1,0 +1,243 @@
+.pagina {
+  padding: var(--space-lg);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+
+.tituloPagina {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.botonNuevo {
+  background: var(--color-accent-green);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: opacity 150ms ease-out;
+}
+
+.botonNuevo:hover {
+  opacity: 0.9;
+}
+
+.botonNuevo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tabla th {
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabla td {
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabla tr:last-child td {
+  border-bottom: none;
+}
+
+.acciones {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.botonEliminar {
+  background: none;
+  border: 1px solid var(--color-accent-terracotta);
+  color: var(--color-accent-terracotta);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 150ms ease-out;
+}
+
+.botonEliminar:hover {
+  background: var(--color-accent-terracotta);
+  color: white;
+}
+
+.botonEliminar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.estadoVacio {
+  text-align: center;
+  padding: var(--space-xl);
+  color: var(--color-text-secondary);
+}
+
+.formulario {
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  border: 1px solid var(--color-border);
+}
+
+.formulario h2 {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  margin-bottom: var(--space-md);
+  color: var(--color-text-primary);
+}
+
+.campo {
+  margin-bottom: var(--space-md);
+}
+
+.label {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent-green);
+}
+
+.botonesFormulario {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.botonGuardar {
+  background: var(--color-accent-green);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.botonGuardar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.botonCancelar {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  border-radius: 6px;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.textoError {
+  color: var(--color-accent-terracotta);
+  font-size: 0.8125rem;
+  margin-bottom: var(--space-sm);
+}
+
+.bannerExito {
+  background: var(--color-accent-green);
+  color: white;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 6px;
+  margin-bottom: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.textoExito {
+  font-size: 0.875rem;
+}
+
+.botonCerrarExito {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.botonCerrarExito:hover {
+  opacity: 1;
+}
+
+.textoCargando {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: var(--space-xl);
+}
+
+.confirmacion {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.textoConfirmacion {
+  font-size: 0.75rem;
+  color: var(--color-accent-terracotta);
+}
+
+.botonConfirmar {
+  background: var(--color-accent-terracotta);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.botonCancelarConfirmacion {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}

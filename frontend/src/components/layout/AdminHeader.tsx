@@ -35,6 +35,9 @@ export function AdminHeader() {
           <Link href="/admin/notificaciones" className={styles.link}>
             Notificaciones
           </Link>
+          <Link href="/admin/administradores" className={styles.link}>
+            Administradores
+          </Link>
           <button
             type="button"
             className={styles.logoutButton}
