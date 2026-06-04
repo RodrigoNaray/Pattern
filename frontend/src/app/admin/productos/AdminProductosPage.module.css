@@ -235,6 +235,30 @@
   letter-spacing: 0.05em;
 }
 
+.badgeAgotado {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-bg-primary);
+  background-color: var(--color-error);
+  border-radius: var(--border-radius-sm);
+  padding: 2px var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badgeStockBajo {
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background-color: var(--color-warning);
+  border-radius: var(--border-radius-sm);
+  padding: 2px var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .accionesTarjeta {
   display: flex;
   gap: var(--space-sm);

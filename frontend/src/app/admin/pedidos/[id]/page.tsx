@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { pedidoAdminService } from '@/services/pedido-admin.service';
+import ModalConfirmacion from '@/components/admin/ModalConfirmacion';
 import styles from './PedidoDetalle.module.css';
 
 interface PedidoDetalle {
@@ -66,6 +67,7 @@ export default function AdminPedidoDetallePage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [accionando, setAccionando] = useState(false);
+  const [mostrarModalCancelar, setMostrarModalCancelar] = useState(false);
   const [toast, setToast] = useState<{ mensaje: string; error?: boolean } | null>(null);
 
   const mostrarToast = useCallback((mensaje: string, error?: boolean) => {
@@ -104,7 +106,6 @@ export default function AdminPedidoDetallePage() {
 
   const handleCancelar = async () => {
     if (!pedido || accionando) return;
-    if (!window.confirm('¿Estás seguro de cancelar este pedido?')) return;
     setAccionando(true);
     try {
       await pedidoAdminService.cancelar(id);
@@ -114,6 +115,7 @@ export default function AdminPedidoDetallePage() {
       mostrarToast(err instanceof Error ? err.message : 'Error al cancelar pedido', true);
     } finally {
       setAccionando(false);
+      setMostrarModalCancelar(false);
     }
   };
 
@@ -194,10 +196,10 @@ export default function AdminPedidoDetallePage() {
           </button>
           <button
             className={styles.btnCancelar}
-            onClick={handleCancelar}
+            onClick={() => setMostrarModalCancelar(true)}
             disabled={accionando}
           >
-            {accionando ? 'Procesando...' : 'Cancelar pedido'}
+            Cancelar pedido
           </button>
         </div>
       )}
@@ -207,6 +209,17 @@ export default function AdminPedidoDetallePage() {
           {toast.mensaje}
         </div>
       )}
+
+      <ModalConfirmacion
+        open={mostrarModalCancelar}
+        titulo="Cancelar pedido"
+        mensaje={`¿Cancelar el pedido ${pedido.codigo}? Esta accion liberara el stock reservado y el cliente sera notificado.`}
+        textoConfirmar={accionando ? 'Cancelando...' : 'Si, cancelar pedido'}
+        textoCancelar="Volver"
+        peligroso
+        onConfirmar={() => void handleCancelar()}
+        onCancelar={() => setMostrarModalCancelar(false)}
+      />
     </main>
   );
 }

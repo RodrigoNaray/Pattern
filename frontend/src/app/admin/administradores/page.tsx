@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ModalConfirmacion from '@/components/admin/ModalConfirmacion';
 import styles from './AdminAdmins.module.css';
 import { listarAdministradores, crearAdministrador, eliminarAdministrador } from '@/services/administrador.service';
 import type { Administrador } from '@/services/administrador.service';
@@ -22,7 +23,7 @@ export default function AdminAdministradoresPage() {
   const [error, setError] = useState<string | null>(null);
   const [exito, setExito] = useState<string | null>(null);
   const [eliminando, setEliminando] = useState<string | null>(null);
-  const [adminEliminar, setAdminEliminar] = useState<string | null>(null);
+  const [adminEliminar, setAdminEliminar] = useState<Administrador | null>(null);
   const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
 
   const cargarAdmins = useCallback(async () => {
@@ -70,10 +71,11 @@ export default function AdminAdministradoresPage() {
     setPassword('');
   };
 
-  const handleEliminar = async (id: string) => {
-    setEliminando(id);
+  const handleEliminar = async () => {
+    if (!adminEliminar) return;
+    setEliminando(adminEliminar.id);
     setErrorEliminar(null);
-    const result = await eliminarAdministrador(id);
+    const result = await eliminarAdministrador(adminEliminar.id);
     setEliminando(null);
     setAdminEliminar(null);
 
@@ -82,7 +84,7 @@ export default function AdminAdministradoresPage() {
       return;
     }
 
-    setAdmins((prev) => prev.filter((a) => a.id !== id));
+    setAdmins((prev) => prev.filter((a) => a.id !== adminEliminar.id));
     setExito('Administrador eliminado exitosamente');
   };
 
@@ -236,38 +238,14 @@ export default function AdminAdministradoresPage() {
                 </td>
                 <td>
                   <div className={styles.acciones}>
-                    {adminEliminar === admin.id ? (
-                      <div className={styles.confirmacion}>
-                        <span className={styles.textoConfirmacion}>¿Eliminar?</span>
-                        <button
-                          type="button"
-                          className={styles.botonConfirmar}
-                          onClick={() => handleEliminar(admin.id)}
-                          disabled={eliminando === admin.id}
-                          aria-label={`Confirmar eliminación de ${admin.nombre}`}
-                        >
-                          {eliminando === admin.id ? '...' : 'Sí'}
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.botonCancelarConfirmacion}
-                          onClick={() => setAdminEliminar(null)}
-                          disabled={eliminando === admin.id}
-                          aria-label="Cancelar eliminación"
-                        >
-                          No
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        className={styles.botonEliminar}
-                        onClick={() => setAdminEliminar(admin.id)}
-                        aria-label={`Eliminar ${admin.nombre}`}
-                      >
-                        Eliminar
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className={styles.botonEliminar}
+                      onClick={() => setAdminEliminar(admin)}
+                      aria-label={`Eliminar ${admin.nombre}`}
+                    >
+                      Eliminar
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -275,6 +253,17 @@ export default function AdminAdministradoresPage() {
           </tbody>
         </table>
       )}
+
+      <ModalConfirmacion
+        open={Boolean(adminEliminar)}
+        titulo="Eliminar administrador"
+        mensaje={`¿Eliminar a "${adminEliminar?.nombre}"? El administrador ya no podra iniciar sesion. Esta accion no se puede deshacer.`}
+        textoConfirmar={eliminando ? 'Eliminando...' : 'Si, eliminar'}
+        textoCancelar="Cancelar"
+        peligroso
+        onConfirmar={() => void handleEliminar()}
+        onCancelar={() => setAdminEliminar(null)}
+      />
     </section>
   );
 }
