@@ -132,7 +132,7 @@ La API estará disponible en `http://localhost:3000` y el frontend en `http://lo
 | `EMAIL_FROM` | Dirección de email remitente |
 | `EMAIL_PASSWORD` | Contraseña del email |
 
-### Frontend (`frontend/.env.local`)
+### Frontend (`frontend/.env`)
 
 | Variable | Descripción | Default |
 |---|---|---|
