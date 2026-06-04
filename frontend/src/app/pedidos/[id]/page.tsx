@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { InstruccionesService } from '@/services/instrucciones.service';
 import styles from './InstruccionesPago.module.css';
 
@@ -110,6 +111,14 @@ export default async function PaginaInstruccionesPago({ params }: PaginaInstrucc
             Tu pedido se encuentra en estado <strong>{datos.estadoPedido}</strong>. Se confirmara una vez que verifiquemos el pago.
           </p>
         </aside>
+
+        <p className={styles.linkLookup}>
+          ¿Perdiste esta URL? Consultá tu pedido con tu codigo y email en la{' '}
+          <Link href="/pedidos" className={styles.linkLookupAncla}>
+            pagina de busqueda
+          </Link>
+          .
+        </p>
       </article>
     </main>
   );

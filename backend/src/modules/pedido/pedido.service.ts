@@ -142,6 +142,13 @@ export class PedidoService {
           );
         }
 
+        for (const item of data.items) {
+          await tx.producto.update({
+            where: { id: item.productoId },
+            data: { stock: { decrement: item.cantidad } },
+          });
+        }
+
         let totalCentavosBig = BigInt(0);
 
         const itemsData = data.items.map((item) => {

@@ -232,6 +232,39 @@ describe('PedidoService', () => {
         service.crear({ ...mockCreatePedidoDto, items: [{ productoId: 'prod-1', cantidad: 5 }] }),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it('debería rechazar el segundo pedido cuando dos clientes compiten por el último par', async () => {
+      // Simula race condition: stock=1, dos pedidos de cantidad=1.
+      // El contador compartido simula la garantia de la transaccion: el
+      // primer pedido decrementa el stock antes que el segundo lo lea.
+      let stockActual = 1;
+      prisma.producto.findUnique.mockImplementation(() =>
+        Promise.resolve({ ...mockProducto, stock: stockActual }),
+      );
+      prisma.producto.update.mockImplementation((args: { data: { stock: { decrement: number } } }) => {
+        stockActual -= args.data.stock.decrement;
+        return Promise.resolve({ ...mockProducto, stock: stockActual });
+      });
+      prisma.pedido.create.mockResolvedValue(mockPedidoWithItems as any);
+      prisma.notificacion.create.mockResolvedValue({ id: 'notif-1' } as any);
+
+      const dtoCliente1: CreatePedidoDto = {
+        ...mockCreatePedidoDto,
+        emailComprador: 'cliente1@email.com',
+        items: [{ productoId: 'prod-1', cantidad: 1 }],
+      };
+      const dtoCliente2: CreatePedidoDto = {
+        ...mockCreatePedidoDto,
+        emailComprador: 'cliente2@email.com',
+        items: [{ productoId: 'prod-1', cantidad: 1 }],
+      };
+
+      const primer = await service.crear(dtoCliente1);
+      const segundo = service.crear(dtoCliente2);
+
+      await expect(segundo).rejects.toThrow(BadRequestException);
+      expect(primer.mensaje).toBe('Pedido creado exitosamente');
+    });
   });
 
   describe('obtenerUno', () => {

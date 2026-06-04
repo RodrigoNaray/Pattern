@@ -252,6 +252,54 @@ describe("ProductoService", () => {
         where: { activo: true, talle: "M" },
       });
     });
+
+    it("deberia filtrar por nombre case-insensitive cuando se pasa q", async () => {
+      prisma.producto.count.mockResolvedValue(0);
+      prisma.producto.findMany.mockResolvedValue([]);
+
+      await service.listar({ activo: true, q: "remera" });
+
+      expect(prisma.producto.count).toHaveBeenCalledWith({
+        where: {
+          activo: true,
+          nombre: { contains: "remera", mode: "insensitive" },
+        },
+      });
+      expect(prisma.producto.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            activo: true,
+            nombre: { contains: "remera", mode: "insensitive" },
+          },
+        }),
+      );
+    });
+
+    it("deberia combinar filtro q con talle", async () => {
+      prisma.producto.count.mockResolvedValue(0);
+      prisma.producto.findMany.mockResolvedValue([]);
+
+      await service.listar({ activo: true, q: "remera", talle: "M" });
+
+      expect(prisma.producto.count).toHaveBeenCalledWith({
+        where: {
+          activo: true,
+          talle: "M",
+          nombre: { contains: "remera", mode: "insensitive" },
+        },
+      });
+    });
+
+    it("deberia ignorar q vacio o solo espacios", async () => {
+      prisma.producto.count.mockResolvedValue(0);
+      prisma.producto.findMany.mockResolvedValue([]);
+
+      await service.listar({ activo: true, q: "   " });
+
+      expect(prisma.producto.count).toHaveBeenCalledWith({
+        where: { activo: true },
+      });
+    });
   });
 
   describe("obtenerUno", () => {
