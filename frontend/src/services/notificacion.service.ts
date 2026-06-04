@@ -1,42 +1,26 @@
-import { Notificacion, NotificacionDetalle, NotificacionFiltro, ListarNotificacionesQuery } from '@/types/notificacion';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+import { apiFetch } from './api-fetch';
+import type { Notificacion, NotificacionDetalle, NotificacionFiltro, ListarNotificacionesQuery } from '@/types/notificacion';
 
 async function fetchNotificaciones(filtro?: NotificacionFiltro): Promise<Notificacion[]> {
   const params = filtro ? `?filtro=${filtro}` : '';
-  const response = await fetch(`${API_BASE_URL}/admin/notificaciones/${params}`);
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch notificaciones');
-  }
-
-  return response.json();
+  const result = await apiFetch<Notificacion[]>(`/admin/notificaciones/${params}`);
+  if (!result.ok) throw new Error(result.error.message);
+  return result.value;
 }
 
 async function fetchNotificacionDetalle(id: string): Promise<NotificacionDetalle> {
-  const response = await fetch(`${API_BASE_URL}/admin/notificaciones/${id}/detalle`);
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch notificacion detalle');
-  }
-
-  return response.json();
+  const result = await apiFetch<NotificacionDetalle>(`/admin/notificaciones/${id}/detalle`);
+  if (!result.ok) throw new Error(result.error.message);
+  return result.value;
 }
 
-async function fetchMarcarComoLeida(id: string): Promise<{
-  id: string;
-  leida: boolean;
-  creadoEn: Date;
-}> {
-  const response = await fetch(`${API_BASE_URL}/admin/notificaciones/${id}/leida`, {
-    method: 'PATCH',
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to mark notificacion as read');
-  }
-
-  return response.json();
+async function fetchMarcarComoLeida(id: string): Promise<{ id: string; leida: boolean; creadoEn: Date }> {
+  const result = await apiFetch<{ id: string; leida: boolean; creadoEn: Date }>(
+    `/admin/notificaciones/${id}/leida`,
+    { method: 'PATCH' },
+  );
+  if (!result.ok) throw new Error(result.error.message);
+  return result.value;
 }
 
 export const notificacionService = {
@@ -48,11 +32,7 @@ export const notificacionService = {
     return fetchNotificacionDetalle(id);
   },
 
-  marcarComoLeida: async (id: string): Promise<{
-    id: string;
-    leida: boolean;
-    creadoEn: Date;
-  }> => {
+  marcarComoLeida: async (id: string): Promise<{ id: string; leida: boolean; creadoEn: Date }> => {
     return fetchMarcarComoLeida(id);
   },
 };

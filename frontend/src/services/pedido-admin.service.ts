@@ -1,6 +1,4 @@
-import { obtenerToken } from './auth.service';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+import { apiFetch } from './api-fetch';
 
 interface PedidoPendiente {
   id: string;
@@ -40,52 +38,32 @@ interface ListarPendientesResponse {
   tamano: number;
 }
 
-function getHeaders(): Record<string, string> {
-  const token = obtenerToken();
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  return headers;
-}
-
 export const pedidoAdminService = {
   async listarPendientes(pagina = 1, tamano = 20): Promise<ListarPendientesResponse> {
-    const res = await fetch(
-      `${API_BASE_URL}/pedidos/list-pendientes?pagina=${pagina}&tamano=${tamano}`,
-      { headers: getHeaders() },
+    const result = await apiFetch<ListarPendientesResponse>(
+      `/pedidos/list-pendientes?pagina=${pagina}&tamano=${tamano}`,
     );
-    if (!res.ok) throw new Error('Error al cargar pedidos pendientes');
-    return res.json();
+    if (!result.ok) throw new Error(result.error.message);
+    return result.value;
   },
 
   async obtenerDetalle(id: string): Promise<PedidoDetalle> {
-    const res = await fetch(`${API_BASE_URL}/pedidos/${id}`, {
-      headers: getHeaders(),
-    });
-    if (!res.ok) throw new Error('Error al obtener detalle del pedido');
-    return res.json();
+    const result = await apiFetch<PedidoDetalle>(`/pedidos/${id}`);
+    if (!result.ok) throw new Error(result.error.message);
+    return result.value;
   },
 
   async confirmarPago(id: string): Promise<void> {
-    const res = await fetch(`${API_BASE_URL}/pedidos/${id}/confirmar-pago`, {
+    const result = await apiFetch(`/pedidos/${id}/confirmar-pago`, {
       method: 'PUT',
-      headers: getHeaders(),
     });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error((data as { message?: string }).message ?? 'Error al confirmar pago');
-    }
+    if (!result.ok) throw new Error(result.error.message);
   },
 
   async cancelar(id: string): Promise<void> {
-    const res = await fetch(`${API_BASE_URL}/pedidos/${id}/cancelar`, {
+    const result = await apiFetch(`/pedidos/${id}/cancelar`, {
       method: 'PUT',
-      headers: getHeaders(),
     });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error((data as { message?: string }).message ?? 'Error al cancelar pedido');
-    }
+    if (!result.ok) throw new Error(result.error.message);
   },
 };
