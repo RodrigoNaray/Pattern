@@ -4,14 +4,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 const pushMock = vi.fn();
 const eliminarTokenMock = vi.fn();
 
-vi.mock('next/link', () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
-}));
-
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushMock }),
+vi.mock('react-router-dom', () => ({
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+  useNavigate: () => pushMock,
 }));
 
 vi.mock('@/services/auth.service', () => ({

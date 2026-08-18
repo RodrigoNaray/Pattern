@@ -4,9 +4,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 const pushMock = vi.fn();
 let searchParamsValue = new URLSearchParams();
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushMock }),
-  useSearchParams: () => searchParamsValue,
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => pushMock,
+  useSearchParams: () => [searchParamsValue, vi.fn()],
 }));
 
 import BarraBusqueda from '@/components/client/BarraBusqueda';

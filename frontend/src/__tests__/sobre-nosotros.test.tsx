@@ -4,14 +4,6 @@ import { render, screen } from '@testing-library/react';
 const fetchMock = vi.fn();
 vi.stubGlobal('fetch', fetchMock);
 
-vi.mock('next/link', () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
-}));
-
-vi.mock('next/navigation', () => ({}));
-
 vi.mock('@/components/layout/Breadcrumbs', () => ({
   default: ({ items }: { items: Array<{ label: string; href?: string }> }) => (
     <nav data-testid="breadcrumbs">
@@ -27,7 +19,7 @@ vi.mock('@/services/configuracion-publica.service', () => ({
   whatsappLink: (n: string) => `https://wa.me/${n.replace(/\D/g, '')}`,
 }));
 
-import SobreNosotrosPage from '@/app/sobre-nosotros/page';
+import SobreNosotros from '@/pages/sobre-nosotros/SobreNosotros';
 
 describe('SobreNosotrosPage', () => {
   beforeEach(() => {
@@ -40,10 +32,9 @@ describe('SobreNosotrosPage', () => {
       whatsappContacto: '59899123456',
     });
 
-    const page = await SobreNosotrosPage();
-    render(page);
+    render(<SobreNosotros />);
 
-    expect(screen.getByRole('heading', { level: 1, name: /Boutique Luna/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /Boutique Luna/i })).toBeInTheDocument();
   });
 
   it('muestra el link de WhatsApp cuando esta configurado', async () => {
@@ -52,10 +43,9 @@ describe('SobreNosotrosPage', () => {
       whatsappContacto: '59899123456',
     });
 
-    const page = await SobreNosotrosPage();
-    render(page);
+    render(<SobreNosotros />);
 
-    const whatsappLink = screen.getByRole('link', { name: '59899123456' });
+    const whatsappLink = await screen.findByRole('link', { name: '59899123456' });
     expect(whatsappLink).toHaveAttribute('href', 'https://wa.me/59899123456');
     expect(whatsappLink).toHaveAttribute('target', '_blank');
   });
@@ -66,10 +56,9 @@ describe('SobreNosotrosPage', () => {
       whatsappContacto: null,
     });
 
-    const page = await SobreNosotrosPage();
-    render(page);
+    render(<SobreNosotros />);
 
-    expect(screen.getByText(/Aun no configurado/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Aun no configurado/i)).toBeInTheDocument();
     const loginLink = screen.getByRole('link', { name: /configura el WhatsApp/i });
     expect(loginLink).toHaveAttribute('href', '/admin/login');
   });
@@ -80,10 +69,9 @@ describe('SobreNosotrosPage', () => {
       whatsappContacto: null,
     });
 
-    const page = await SobreNosotrosPage();
-    render(page);
+    render(<SobreNosotros />);
 
-    expect(screen.getByRole('heading', { level: 1, name: /Tienda de Ropa/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /Tienda de Ropa/i })).toBeInTheDocument();
   });
 
   it('muestra las secciones "Como comprar" y "Contacto"', async () => {
@@ -92,10 +80,9 @@ describe('SobreNosotrosPage', () => {
       whatsappContacto: '59899123456',
     });
 
-    const page = await SobreNosotrosPage();
-    render(page);
+    render(<SobreNosotros />);
 
-    expect(screen.getByRole('heading', { level: 2, name: /Como comprar/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 2, name: /Como comprar/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: /Contacto/i })).toBeInTheDocument();
   });
 
@@ -105,9 +92,9 @@ describe('SobreNosotrosPage', () => {
       whatsappContacto: null,
     });
 
-    const page = await SobreNosotrosPage();
-    render(page);
+    render(<SobreNosotros />);
 
+    expect(await screen.findByTestId('breadcrumbs')).toBeInTheDocument();
     const breadcrumbs = screen.getByTestId('breadcrumbs');
     expect(breadcrumbs.textContent).toContain('Inicio');
     expect(breadcrumbs.textContent).toContain('Sobre nosotros');

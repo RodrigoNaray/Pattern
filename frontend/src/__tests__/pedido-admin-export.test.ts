@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const obtenerTokenMock = vi.fn(() => 'test-token-123');
+const obtenerTokenMock = vi.fn<() => string | null>(() => 'test-token-123');
 const descargarArchivoMock = vi.fn();
 const fetchMock = vi.fn();
 

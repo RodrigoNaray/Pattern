@@ -15,14 +15,12 @@ import {
 describe('auth.service - localStorage helpers', () => {
   beforeEach(() => {
     localStorage.clear();
-    document.cookie = 'admin-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   });
 
-  it('guardarToken persiste en localStorage y setea cookie', () => {
+  it('guardarToken persiste en localStorage', () => {
     guardarToken('mi-token-abc');
 
     expect(localStorage.getItem('accessToken')).toBe('mi-token-abc');
-    expect(document.cookie).toContain('admin-token=mi-token-abc');
   });
 
   it('obtenerToken lee el token de localStorage', () => {
@@ -34,12 +32,11 @@ describe('auth.service - localStorage helpers', () => {
     expect(obtenerToken()).toBeNull();
   });
 
-  it('eliminarToken borra localStorage y cookie', () => {
+  it('eliminarToken borra de localStorage', () => {
     guardarToken('token-a-borrar');
     eliminarToken();
 
     expect(localStorage.getItem('accessToken')).toBeNull();
-    expect(document.cookie).not.toContain('admin-token=token-a-borrar');
   });
 
   it('estaAutenticado refleja el estado de localStorage', () => {
@@ -62,7 +59,7 @@ describe('auth.service - login', () => {
       ok: true,
       json: () => Promise.resolve({
         accessToken: 'jwt-123',
-        administrador: { id: 'a1', nombre: 'Admin', email: 'a@a.com' },
+        admin: { id: 'a1', nombre: 'Admin', email: 'a@a.com' },
       }),
     });
 
