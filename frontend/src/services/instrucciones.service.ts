@@ -1,13 +1,12 @@
 import type { PedidoInstruccionesPagoDto } from '@/types/pedido-instrucciones';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 export class InstruccionesService {
   static async obtenerInstruccionesPago(pedidoId: string): Promise<PedidoInstruccionesPagoDto> {
     const response = await fetch(`${BASE_URL}/pedidos/${pedidoId}/instrucciones-pago`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
-      next: { revalidate: 60 },
     });
 
     if (!response.ok) {

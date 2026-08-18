@@ -1,17 +1,6 @@
 import type { AuthResponse } from '../types/auth-response';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
-
-function setCookie(name: string, value: string, days: number) {
-  if (typeof document === 'undefined') return;
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Strict`;
-}
-
-function deleteCookie(name: string) {
-  if (typeof document === 'undefined') return;
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-}
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -38,12 +27,10 @@ export function obtenerToken(): string | null {
 
 export function guardarToken(token: string): void {
   localStorage.setItem('accessToken', token);
-  setCookie('admin-token', token, 7);
 }
 
 export function eliminarToken(): void {
   localStorage.removeItem('accessToken');
-  deleteCookie('admin-token');
 }
 
 export function estaAutenticado(): boolean {
@@ -66,7 +53,7 @@ export async function cambiarPassword(payload: {
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    const mensaje = (data as { message?: string }).message ?? 'Error al cambiar la contraseña';
+    const mensaje = (data as { message?: string }).message ?? 'Error al cambiar la contrasena';
     throw new Error(mensaje);
   }
 

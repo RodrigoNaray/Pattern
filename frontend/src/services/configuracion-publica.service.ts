@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 export interface ConfiguracionPublica {
   nombreTienda: string | null;
@@ -8,7 +8,6 @@ export interface ConfiguracionPublica {
 export async function obtenerConfiguracionPublica(): Promise<ConfiguracionPublica> {
   try {
     const res = await fetch(`${BASE_URL}/configuracion-tienda/publica`, {
-      next: { revalidate: 300 },
     });
 
     if (!res.ok) {

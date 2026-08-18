@@ -5,7 +5,7 @@
 
 type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E };
 
-interface Producto {
+export interface Producto {
   id: string;
   nombre: string;
   descripcion: string | null;
@@ -33,12 +33,11 @@ interface ProductosQueryParams {
   tamano?: number;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 async function fetchJson<T>(url: string): Promise<Result<T>> {
   try {
     const response = await fetch(url, {
-      next: { revalidate: 60 },
     });
 
     if (!response.ok) {

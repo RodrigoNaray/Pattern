@@ -2,7 +2,7 @@ import { apiFetch } from './api-fetch';
 import { obtenerToken } from './auth.service';
 import { descargarArchivo } from './descargar-archivo';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
 interface PedidoPendiente {
   id: string;
