@@ -1,4 +1,3 @@
-'use client';
 
 /**
  * Contexto global del carrito de compras.

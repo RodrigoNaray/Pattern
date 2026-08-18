@@ -1,4 +1,3 @@
-'use client';
 
 import { useState, FormEvent } from 'react';
 import { pedidoPublicoService, type PedidoDetalle } from '@/services/pedido-publico.service';

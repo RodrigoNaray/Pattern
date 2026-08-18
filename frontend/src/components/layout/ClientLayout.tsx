@@ -1,22 +1,19 @@
-'use client';
-
-import { usePathname } from 'next/navigation';
-import { CarritoProvider } from '@/components/carrito/carrito-context';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { AdminHeader } from './AdminHeader';
 import { Footer } from './Footer';
 
-export function ClientLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isAdmin = pathname?.startsWith('/admin');
+export function ClientLayout() {
+  const { pathname } = useLocation();
+  const isAdmin = pathname.startsWith('/admin');
 
   return (
-    <CarritoProvider>
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        {isAdmin ? <AdminHeader /> : <Header />}
-        <main style={{ flex: '1' }}>{children}</main>
-        <Footer />
-      </div>
-    </CarritoProvider>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {isAdmin ? <AdminHeader /> : <Header />}
+      <main style={{ flex: '1' }}>
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
   );
 }

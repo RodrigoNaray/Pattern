@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import styles from './CarritoEmpty.module.css';
 
 export function CarritoEmpty() {
@@ -9,7 +9,7 @@ export function CarritoEmpty() {
       <p className={styles.carritoEmptyTexto}>
         Agreg&aacute; productos desde el cat&aacute;logo para comenzar tu pedido.
       </p>
-      <Link href="/productos" className={styles.botonCatalogo}>
+      <Link to="/productos" className={styles.botonCatalogo}>
         Ir al cat&aacute;logo
       </Link>
     </div>

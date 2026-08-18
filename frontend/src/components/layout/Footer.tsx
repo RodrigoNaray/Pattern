@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 
 export function Footer() {
@@ -12,16 +12,16 @@ export function Footer() {
 
         <nav className={styles.columna} aria-label="Links del pie de pagina">
           <span className={styles.columnaTitulo}>Links</span>
-          <Link href="/" className={styles.link}>
+          <Link to="/" className={styles.link}>
             Inicio
           </Link>
-          <Link href="/productos" className={styles.link}>
+          <Link to="/productos" className={styles.link}>
             Catalogo
           </Link>
-          <Link href="/sobre-nosotros" className={styles.link}>
+          <Link to="/sobre-nosotros" className={styles.link}>
             Sobre nosotros
           </Link>
-          <Link href="/pedidos" className={styles.link}>
+          <Link to="/pedidos" className={styles.link}>
             Mi pedido
           </Link>
         </nav>
@@ -30,7 +30,7 @@ export function Footer() {
           <span className={styles.columnaTitulo}>Contacto</span>
           <span className={styles.textoContacto}>
             Pagina de contacto y horarios en{' '}
-            <Link href="/sobre-nosotros" className={styles.link}>
+            <Link to="/sobre-nosotros" className={styles.link}>
               Sobre nosotros
             </Link>
             .

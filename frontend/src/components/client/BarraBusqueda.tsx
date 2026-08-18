@@ -1,12 +1,10 @@
-'use client';
-
-import { useState, FormEvent } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, type FormEvent } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './BarraBusqueda.module.css';
 
 export default function BarraBusqueda() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [q, setQ] = useState(searchParams.get('q') ?? '');
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -19,7 +17,7 @@ export default function BarraBusqueda() {
       params.delete('q');
     }
     params.set('pagina', '1');
-    router.push(`/productos${params.toString() ? `?${params.toString()}` : ''}`);
+    navigate(`/productos${params.toString() ? `?${params.toString()}` : ''}`);
   }
 
   function handleLimpiar() {
@@ -27,7 +25,7 @@ export default function BarraBusqueda() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete('q');
     params.set('pagina', '1');
-    router.push(`/productos${params.toString() ? `?${params.toString()}` : ''}`);
+    navigate(`/productos${params.toString() ? `?${params.toString()}` : ''}`);
   }
 
   return (

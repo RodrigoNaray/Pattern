@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import styles from './Breadcrumbs.module.css';
 
 export interface BreadcrumbItem {
@@ -14,8 +14,8 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
   if (items.length === 0) return null;
 
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ??
-    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+    import.meta.env.VITE_BASE_URL ??
+    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173');
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -36,7 +36,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
           return (
             <li key={`${item.label}-${index}`} className={styles.item}>
               {item.href && !esUltimo ? (
-                <Link href={item.href} className={styles.enlace}>
+                <Link to={item.href} className={styles.enlace}>
                   {item.label}
                 </Link>
               ) : (

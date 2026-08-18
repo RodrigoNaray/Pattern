@@ -1,48 +1,45 @@
-'use client';
-
 import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useNavigate } from 'react-router-dom';
 import { eliminarToken } from '@/services/auth.service';
 import ModalConfirmacion from '@/components/admin/ModalConfirmacion';
 import styles from './AdminHeader.module.css';
 
 export function AdminHeader() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
   function handleLogout() {
     eliminarToken();
-    router.push('/admin/login');
+    navigate('/admin/login');
   }
 
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Link href="/admin" className={styles.logo}>
+        <Link to="/admin" className={styles.logo}>
           <span className={styles.logoMarca}>T</span>
           <span className={styles.logoTexto}>Tienda Admin</span>
         </Link>
         <nav className={styles.nav}>
-          <Link href="/admin" className={styles.link}>
+          <Link to="/admin" className={styles.link}>
             Dashboard
           </Link>
-          <Link href="/admin/productos" className={styles.link}>
+          <Link to="/admin/productos" className={styles.link}>
             Productos
           </Link>
-          <Link href="/admin/pedidos" className={styles.link}>
+          <Link to="/admin/pedidos" className={styles.link}>
             Pedidos
           </Link>
-          <Link href="/admin/configuracion" className={styles.link}>
+          <Link to="/admin/configuracion" className={styles.link}>
             Configuracion
           </Link>
-          <Link href="/admin/notificaciones" className={styles.link}>
+          <Link to="/admin/notificaciones" className={styles.link}>
             Notificaciones
           </Link>
-          <Link href="/admin/administradores" className={styles.link}>
+          <Link to="/admin/administradores" className={styles.link}>
             Administradores
           </Link>
-          <Link href="/admin/cuenta" className={styles.link}>
+          <Link to="/admin/cuenta" className={styles.link}>
             Mi cuenta
           </Link>
           <button

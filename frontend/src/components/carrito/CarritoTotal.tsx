@@ -1,6 +1,3 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
 import styles from './CarritoTotal.module.css';
 import { formatearNumero } from '@/lib/formatear-precio';
 
@@ -11,20 +8,11 @@ interface CarritoTotalProps {
 }
 
 export function CarritoTotal({ totalCentavos, hayStockInsuficiente, onCheckout }: CarritoTotalProps) {
-  const router = useRouter();
-
-  const formatPeso = (valor: number) => formatearNumero(valor);
-
-  const handleCheckout = () => {
-    onCheckout();
-    router.push('/checkout');
-  };
-
   return (
     <div className={styles.carritoTotalContainer}>
       <div>
         <span className={styles.totalLabel}>Total</span>
-        <span className={styles.totalValor}>{formatPeso(totalCentavos)}</span>
+        <span className={styles.totalValor}>{formatearNumero(totalCentavos)}</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', alignItems: 'flex-end' }}>
@@ -36,7 +24,7 @@ export function CarritoTotal({ totalCentavos, hayStockInsuficiente, onCheckout }
         <button
           type="button"
           className={styles.botonContinuar}
-          onClick={handleCheckout}
+          onClick={onCheckout}
         >
           Crear pedido
         </button>

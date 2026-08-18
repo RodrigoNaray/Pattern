@@ -1,38 +1,35 @@
-'use client';
-
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCarrito } from '@/components/carrito/carrito-context';
 import styles from './Header.module.css';
 
 export function Header() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { itemCount } = useCarrito();
 
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Link href="/" className={styles.logo}>
+        <Link to="/" className={styles.logo}>
           <span className={styles.logoMarca}>T</span>
           <span className={styles.logoTexto}>Tienda de Ropa</span>
         </Link>
         <nav className={styles.nav}>
-          <Link href="/" className={styles.link}>
+          <Link to="/" className={styles.link}>
             Inicio
           </Link>
-          <Link href="/productos" className={styles.link}>
+          <Link to="/productos" className={styles.link}>
             Catalogo
           </Link>
-          <Link href="/sobre-nosotros" className={styles.link}>
+          <Link to="/sobre-nosotros" className={styles.link}>
             Sobre nosotros
           </Link>
-          <Link href="/pedidos" className={styles.link}>
+          <Link to="/pedidos" className={styles.link}>
             Mi pedido
           </Link>
           <button
             type="button"
             className={styles.cartButton}
-            onClick={() => router.push('/carrito')}
+            onClick={() => navigate('/carrito')}
           >
             Carrito
             {itemCount > 0 && <span className={styles.badge}>{itemCount}</span>}

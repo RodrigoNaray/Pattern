@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import styles from './tarjeta-producto.module.css';
 import { formatearPrecio } from '@/lib/formatear-precio';
 
@@ -20,14 +19,12 @@ export default function TarjetaProducto({ id, nombre, talle, precioCentavos, ima
   const stockBajo = !agotado && stock <= STOCK_BAJO_UMBRAL;
 
   return (
-    <Link href={`/productos/${id}`} className={styles.container}>
+    <Link to={`/productos/${id}`} className={styles.container}>
       <div className={styles.imageWrapper}>
-        <Image
+        <img
           src={imagenes[0] || '/placeholder.png'}
           alt={nombre}
-          fill
           className={styles.imagen}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           loading="eager"
         />
         {agotado && (
