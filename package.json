@@ -1,6 +1,6 @@
 {
 	"scripts": {
-		"dev": "concurrently -n backend,frontend -c blue,green \"pnpm --filter backend start:dev\" \"pnpm --filter frontend dev\""
+		"dev": "concurrently -n backend,frontend -c blue,green \"cd backend && mvn spring-boot:run\" \"pnpm --filter frontend dev\""
 	},
 	"devDependencies": {
 		"concurrently": "^10.0.1"
